@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 
 public class Parser {
-    public String statement;
+    public String table_name;
     public ArrayList<String> fields;
     public ArrayList<FieldType> fieldtypes;
 
@@ -19,7 +19,7 @@ public class Parser {
 
     }
 
-    public String[] Parse(String m) throws Exception{
+    public boolean Parse(String m) throws Exception{
         String[] Command= m.trim().toLowerCase().split("\\s");
         String first = Command[0];
         switch (first){
@@ -35,28 +35,33 @@ public class Parser {
             break;
             default: throw new Exception("Not a legal command!");
         }
-        return Command;
+        return true;
     }
 
     public boolean CreateStatement(String m) throws Exception{
         if(checkCreate(m)) {
+            String[] Command= m.trim().toLowerCase().split("\\s");
+            table_name = Command[2];
             Pattern pattern = Pattern.compile("\\((.+)\\)");
             Matcher matcher = pattern.matcher(m);
             matcher.find();
             String[] values = matcher.group(1).trim().split("[\\s]*,[\\s]*");
             for(String v:values) {
-                String[] field=v.toLowerCase().split("\\s");
+                String[] field=v.toLowerCase().split(" ");
                 String fieldT=field[1];
                 FieldType type;
-                if(fieldT.equals("STR20")){
+                if(fieldT.equals("str20")){
                     type=FieldType.STR20;
-                }else if(fieldT.equals("INT")){
+                }else if(fieldT.equals("int")){
                     type=FieldType.INT;
                 }else{
                     throw new Exception("Wrong file type!!");
                 }
                 fields.add(field[0]);
                 fieldtypes.add(type);
+            }
+            for(String s:this.fields){
+                System.out.println(s);
             }
             return true;
         }else{
@@ -91,7 +96,6 @@ public class Parser {
 
     public boolean checkCreate(String m){
         String[] Command = m.trim().toLowerCase().split("\\s");
-        System.out.println("I'm in Create");
         if (Command.length <= 3) {
             System.out.println("Illegal Create");
             return false;
