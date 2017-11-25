@@ -73,10 +73,10 @@ public class TestStorageManager {
     System.out.print(schema + "\n");
     System.out.print("The schema has " + schema.getNumOfFields() + " fields" + "\n");
     System.out.print("The schema allows " + schema.getTuplesPerBlock() + " tuples per block" + "\n");
-    System.out.print("The schema has field names: " + "\n");
+    System.out.print("The schema has field fieldNames: " + "\n");
     field_names=schema.getFieldNames();
     System.out.print(field_names.toString()+"\n");
-    System.out.print("The schema has field types: " + "\n");
+    System.out.print("The schema has field fieldTypes: " + "\n");
     field_types=schema.getFieldTypes();
     System.out.print(field_types.toString()+"\n");
     System.out.print("\n");
@@ -171,10 +171,10 @@ public class TestStorageManager {
     System.out.print("Creating table ExampleTable3 with a different schema" + "\n");
     field_types.set(1,FieldType.INT);
     Schema schema3=new Schema(field_names,field_types);
-    System.out.print("The schema has field names: " + "\n");
+    System.out.print("The schema has field fieldNames: " + "\n");
     field_names=schema3.getFieldNames();
     System.out.print(field_names.toString()+"\n");
-    System.out.print("The schema has field types: " + "\n");
+    System.out.print("The schema has field fieldTypes: " + "\n");
     field_types=schema3.getFieldTypes();
     System.out.print(field_types.toString()+"\n");
     relation_reference = schema_manager.createRelation("ExampleTable3",schema3);

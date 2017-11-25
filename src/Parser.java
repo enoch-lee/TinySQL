@@ -1,129 +1,86 @@
-import javafx.util.Pair;
 import storageManager.FieldType;
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class Parser {
-    public String table_name;
-    public ArrayList<String> fields;
-    public ArrayList<FieldType> fieldtypes;
 
-    public Parser(){
-        fields = new ArrayList<String>();
-        fieldtypes = new ArrayList<FieldType>();
-
-    }
-
-    public boolean Parse(String m) throws Exception{
-        String[] Command= m.trim().toLowerCase().split("\\s");
-        String first = Command[0];
-        switch (first){
-            case "create": CreateStatement(m);
-            break;
-            case "select": SelectStatement(m);
-            break;
-            case "drop"  : DropStatement(m);
-            break;
-            case "delete": DeleteStatement(m);
-            break;
-            case "insert": InsertStatement(m);
-            break;
-            default: throw new Exception("Not a legal command!");
-        }
-        return true;
-    }
-
-    public boolean CreateStatement(String m) throws Exception{
-        if(checkCreate(m)) {
-            String[] Command= m.trim().toLowerCase().split("\\s");
-            table_name = Command[2];
-            Pattern pattern = Pattern.compile("\\((.+)\\)");
-            Matcher matcher = pattern.matcher(m);
-            matcher.find();
-            String[] values = matcher.group(1).trim().split("[\\s]*,[\\s]*");
-            for(String v:values) {
-                String[] field=v.toLowerCase().split(" ");
-                String fieldT=field[1];
-                FieldType type;
-                if(fieldT.equals("str20")){
-                    type=FieldType.STR20;
-                }else if(fieldT.equals("int")){
-                    type=FieldType.INT;
+    public Statement createStatement(String sql) {
+        Statement stmt = new Statement();
+        String regex = "create[\\s]+table[\\s]+(.+)[\\s]+\\((.*)\\)";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(sql);
+        while(m.find()){
+            stmt.tableName = m.group(1);
+            String[] tmp = m.group(2).split("[\\s]*,[\\s]*");
+            for(String s : tmp){
+                stmt.fieldNames.add(s.split(" ")[0]);
+                if(s.split("[\\s]+")[1].equals("int")){
+                    stmt.fieldTypes.add(FieldType.INT);
                 }else{
-                    throw new Exception("Wrong file type!!");
+                    stmt.fieldTypes.add(FieldType.STR20);
                 }
-                fields.add(field[0]);
-                fieldtypes.add(type);
             }
-            for(String s:this.fields){
-                System.out.println(s);
-            }
-            return true;
-        }else{
-            throw new Exception("No legal values");
         }
+        /*
+        for(FieldType s : stmt.fieldTypes){
+            System.out.println(s);
+        }
+        */
+        return stmt;
     }
 
-    public boolean SelectStatement(String m){
+    private boolean SelectStatement(String m){
         System.out.println("I'm in Select");
         String[] Command= m.trim().toLowerCase().split("\\s");
         return true;
     }
 
-    public boolean DropStatement(String m){
-        System.out.println("I'm in Drop");
-        String[] Command= m.trim().toLowerCase().split("\\s");
-        return true;
+    public String dropStatement(String sql){
+        return sql.split("[\\s]+")[2];
     }
 
-    public boolean DeleteStatement(String m){
-        System.out.println("I'm in Delete");
-        String[] Command= m.trim().toLowerCase().split("\\s");
-        return true;
+    private String deleteStatement(String sql){
+
+        return null;
     }
 
-    public boolean InsertStatement(String m){
-        System.out.println("I'm in Insert");
-        String[] Command= m.trim().toLowerCase().split("\\s");
-        return true;
-    }
-
-
-    public boolean checkCreate(String m){
-        String[] Command = m.trim().toLowerCase().split("\\s");
-        if (Command.length <= 3) {
-            System.out.println("Illegal Create");
-            return false;
+    public Statement insertStatement(String sql){
+        Statement stmt = new Statement();
+        String regex = "insert[\\s]+into[\\s]+(.+)[\\s]+\\((.*)\\)[\\s]+values[\\s]+(.*)";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(sql);
+        if(m.find()){
+            stmt.tableName = m.group(1);
+            stmt.fieldNames = new ArrayList<>(Arrays.asList(m.group(2).split("[\\s]*,[\\s]*")));
+            String[] values = m.group(3).replace("(", "").replace(")", "").split("[\\s]*,[\\s]*");
+            int len = stmt.fieldNames.size();
+            ArrayList<String> tmp = new ArrayList<>();
+            for(int i = 0; i < values.length; ++i){
+                if(i % len == 0) {
+                    if(i != 0) stmt.fieldValues.add(tmp);
+                    tmp.clear();
+                }
+                tmp.add(values[i]);
+            }
+            stmt.fieldValues.add(tmp);
+        }else{
+            System.out.println("Invalid SQL");
         }
-        if (!Command[1].equalsIgnoreCase("table")) {
-            System.out.println("Table should follow Create statement");
-            return false;
-        }
-
-        if (!Command[3].startsWith("(") || !Command[Command.length - 1].endsWith(")")) {
-            System.out.println("Miss parenthesizes");
-            return false;
-        }
-        return true;
+        //System.out.println(stmt.fieldValues.get(0).size());
+        return stmt;
     }
 
     public static void main(String[] args) throws IOException{
-        BufferedReader br =new BufferedReader(new InputStreamReader(System.in));
-        String s = br.readLine();
-        Parser P=new Parser();
-        try {
-            P.Parse(s);
-        }catch(Exception e){
-            System.out.println("Got an Exception:"+e.getMessage());
-            e.printStackTrace();
-        }
-        br.close();
+        String test1 = "create table table_name (c1 int, c2 int, c3 int)";
+        String test2 = "insert into table_name (c1, c2, c3) values (1, 2, 3)";
+        Parser p = new Parser();
+        p.createStatement(test1);
+        p.insertStatement(test2);
     }
-
 }
 
