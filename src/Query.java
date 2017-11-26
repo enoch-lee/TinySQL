@@ -58,7 +58,6 @@ public class Query {
         Statement stmt = parser.insertStatement(sql);
         Schema schema = schemaMG.getSchema(stmt.tableName);
         Relation relation = schemaMG.getRelation(stmt.tableName);
-        //Tuple tuple = relation.createTuple();
         //System.out.println(stmt.fieldValues.get(0).size());
         for(int i = 0; i < stmt.fieldValues.size(); ++i){
             Tuple tuple = relation.createTuple();
@@ -70,6 +69,7 @@ public class Query {
                     tuple.setField(j, value);
                 }
             }
+            System.out.println(tuple.getField(0).integer);
             appendTuple2Relation(relation, tuple, 0);
         }
         System.out.println(relation.getNumOfTuples());
