@@ -95,7 +95,7 @@ public class Query {
             @Override
             //desc order
             public int compare(Tuple t1, Tuple t2) {
-                if(t1.getField(fieldName).type.equals("INT")){
+                if(t1.getField(fieldName).type.equals(FieldType.STR20)){
                     return t1.getField(fieldName).str.compareTo(t2.getField(fieldName).str);
                 }else{
                     return t1.getField(fieldName).integer > t2.getField(fieldName).integer ? 1 : -1;
@@ -110,13 +110,21 @@ public class Query {
     }
 
     private void rmDupTuples(ArrayList<Tuple> tuples, String fieldName){
-        ArrayList<Tuple> tmp = new ArrayList<>();
-        tmp.addAll(tuples);
+        ArrayList<Tuple> tmp = new ArrayList<>(tuples);
         tuples.clear();
-        HashSet<Integer> hash = new HashSet<>();
-        for(Tuple tuple : tmp){
-            if(hash.add(tuple.getField(fieldName).integer)) {
-                tuples.add(tuple);
+        if(tmp.get(0).getField(fieldName).type.equals(FieldType.INT)){
+            HashSet<Integer> hash = new HashSet<>();
+            for(Tuple tuple : tmp){
+                if(hash.add(tuple.getField(fieldName).integer)) {
+                    tuples.add(tuple);
+                }
+            }
+        }else{
+            HashSet<String> hash = new HashSet<>();
+            for(Tuple tuple : tmp){
+                if(hash.add(tuple.getField(fieldName).str)) {
+                    tuples.add(tuple);
+                }
             }
         }
     }
