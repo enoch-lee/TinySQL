@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.PriorityQueue;
 
 import storageManager.*;
@@ -109,8 +110,14 @@ public class Query {
     }
 
     private void rmDupTuples(ArrayList<Tuple> tuples, String fieldName){
-        for(Tuple tuple : tuples){
-
+        ArrayList<Tuple> tmp = new ArrayList<>();
+        tmp.addAll(tuples);
+        tuples.clear();
+        HashSet<Integer> hash = new HashSet<>();
+        for(Tuple tuple : tmp){
+            if(hash.add(tuple.getField(fieldName).integer)) {
+                tuples.add(tuple);
+            }
         }
     }
 
@@ -187,9 +194,9 @@ public class Query {
         Query q = new Query();
         q.parseQuery("create table table_name (c1 int, c2 int, c3 str20)");
         q.parseQuery("insert into table_name (c1, c2, c3) values (10, 10, test1)");
-        q.parseQuery("insert into table_name (c1, c2, c3) values (20, 20, test2)");
+        q.parseQuery("insert into table_name (c1, c2, c3) values (10, 20, test2)");
         q.parseQuery("insert into table_name (c1, c2, c3) values (5, 30, test3)");
-        q.parseQuery("select * from table_name where c1 > 1 order by c1");
+        q.parseQuery("select distinct c1 from table_name");
         q.parseQuery("drop table table_name");
     }
 }
