@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 
 import storageManager.*;
 
@@ -41,7 +42,34 @@ public class Query {
         schemaMG.createRelation(stmt.tableName, schema);
     }
 
-    private void selectQuery(String m){
+    private void selectQuery(String sql){
+        Statement stmt = parser.selectStatement(sql);
+        ArrayList<Tuple> res = new ArrayList<>();
+        ParseTree parseTree = stmt.parseTree;
+        String tableName = parseTree.tables.get(0);
+        //Schema schema = schemaMG.getSchema(tableName);
+        Relation relation = schemaMG.getRelation(tableName);
+        Block block;
+        for(int i = 0; i < relation.getNumOfBlocks(); ++i){
+            relation.getBlock(i, 0);
+            block  = memory.getBlock(0);
+            ArrayList<Tuple> tuples = block.getTuples();
+            for(Tuple tuple : tuples){
+                if(parseTree.where){
+                    parseTree.expressionTree.checkTuple(tuple);
+                }else{
+                    System.out.println(tuple);
+                    res.add(tuple);
+                }
+            }
+        }
+    }
+
+    private void sortTuples(ArrayList<Tuple> tuples, String fieldName){
+        
+    }
+
+    private void rmDupTuples(){
 
     }
 
@@ -50,8 +78,26 @@ public class Query {
         schemaMG.deleteRelation(parser.dropStatement(sql).trim());
     }
 
-    private void deleteQuery(String m){
-
+    private void deleteQuery(String sql){
+        Statement stmt = parser.deleteStatement(sql);
+        ParseTree parseTree = stmt.parseTree;
+        String tableName = parseTree.tables.get(0);
+        Relation relation = schemaMG.getRelation(tableName);
+        Block block;
+        for(int i = 0; i < relation.getNumOfBlocks(); ++i){
+            relation.getBlock(i, 0);
+            block  = memory.getBlock(0);
+            if(parseTree.where){
+                ArrayList<Tuple> tuples = block.getTuples();
+                for(int j = 0; j < tuples.size(); ++j){
+                    parseTree.expressionTree.checkTuple(tuples.get(j));
+                    block.invalidateTuple(j);
+                }
+            }else{
+                block.invalidateTuples();
+            }
+            relation.setBlock(i, 0);
+        }
     }
 
     private void insertQuery(String sql){
@@ -69,10 +115,10 @@ public class Query {
                     tuple.setField(j, value);
                 }
             }
-            System.out.println(tuple.getField(0).integer);
+            //System.out.println(tuple.getField(0).integer);
             appendTuple2Relation(relation, tuple, 0);
         }
-        System.out.println(relation.getNumOfTuples());
+        //System.out.println(relation.getNumOfTuples());
     }
 
     private static void appendTuple2Relation(Relation relation, Tuple tuple, int memBlockIndex){
@@ -100,6 +146,7 @@ public class Query {
         q.parseQuery("create table table_name (c1 int, c2 int, c3 str20)");
         q.parseQuery("insert into table_name (c1, c2, c3) values (10, 10, test1)");
         q.parseQuery("insert into table_name (c1, c2, c3) values (20, 20, test2)");
+        q.parseQuery("select * from table_name where c1 = 10");
         q.parseQuery("drop table table_name");
     }
 }

@@ -7,6 +7,7 @@ public class Statement {
     ArrayList<String> fieldNames;
     ArrayList<FieldType> fieldTypes;
     ArrayList<ArrayList<String>> fieldValues;
+    ParseTree parseTree;
     Statement(){
         fieldNames = new ArrayList<>();
         fieldTypes = new ArrayList<>();

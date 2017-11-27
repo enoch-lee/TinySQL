@@ -1,160 +1,273 @@
-import storageManager.FieldType;
 import storageManager.Tuple;
 
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Stack;
-import java.util.Queue;
 
 public class ExpressionTree {
-    private static Queue<String> postExpr;
-    private static HashMap<Character, Integer> precedence;
-    ExpressionTree(){
-        postExpr = new LinkedList<>();
-        precedence = new HashMap<>();
-        precedence.put('(', 1);
-        precedence.put(')', 1);
-        precedence.put('+', 2);
-        precedence.put('-', 2);
-        precedence.put('*', 3);
-        precedence.put('/', 3);
-        precedence.put('>', 3);
-        precedence.put('<', 3);
-        precedence.put('=', 3);
-        precedence.put('|', 3);
-        precedence.put('&', 3);
-        precedence.put('^', 3);
+    public boolean choose;
+
+    public boolean AndOR;
+    public ArrayList<Integer> AndORs;
+    public ArrayList<String> AndOrNots;
+    public ArrayList<String[]> subconditions;
+    public ArrayList<TreeNode> Roots;
+
+    private Stack<String> OperatorStack;
+    private Stack<TreeNode> TreeNodeStack;
+
+
+    ExpressionTree(String[] condition){
+        this.OperatorStack=new Stack<String>();
+        this.TreeNodeStack=new Stack<TreeNode>();
+
+        this.Roots=new ArrayList<TreeNode>();
+        this.AndORs=new ArrayList<Integer>();
+        this.AndOrNots=new ArrayList<String>();
+        this.subconditions=new ArrayList<String[]>();
+
+        SplitSubCondition(condition);
+        if(!AndOR){
+            Roots.add(Build(condition));
+        }else{
+            for(int i=0; i<subconditions.size();i++){
+                String[] condi=subconditions.get(i);
+                Roots.add(Build(condi));
+            }
+        }
     }
-    public static void infix2postfix(String expr){
-        char[] tokens = expr.toCharArray();
-        Stack<Character> ops = new Stack<Character>();
-        for(int i = 0; i < tokens.length; ++i){
-            if(tokens[i] == ' ') continue;
-            if (tokens[i] >= '0' && tokens[i] <= '9') {
-                StringBuffer str = new StringBuffer();
-                while (i < tokens.length && tokens[i] >= '0' && tokens[i] <= '9')
-                    str.append(tokens[i++]);
-                postExpr.add(str.toString());
+
+    public TreeNode Build(String[] condition){
+        TreeNode root=new TreeNode();
+        if(condition[0].equals("not")){
+            condition=Arrays.copyOfRange(condition,1,condition.length);
+        }
+        for(String con:condition){
+            int kind = Judge(con);
+            if(kind==1){
+                Operator(con);
+            }else if(kind==2){
+                LeftParenthesis();
+            }else if(kind==3){
+                RightParenthesis();
+            }else{
+                Words(con);
             }
-            else if (tokens[i] == '('){
-                ops.push(tokens[i]);
-            }
-            else if (tokens[i] == ')') {
-                while (ops.peek() != '('){
-                    postExpr.add(ops.peek().toString());
-                    ops.pop();
+        }
+        while(!OperatorStack.empty()){
+            NodeOperation(OperatorStack.pop());
+        }
+        root=TreeNodeStack.pop();
+        return root;
+    }
+
+    public void SplitSubCondition(String[] condition){
+        AndOR=false;
+
+        for(int i=0; i<condition.length; i++){
+            String word= condition[i];
+            if(word.equals("and")||word.equals("or")){
+                AndOR=true;
+                if(word.equals("and")){
+                    AndOrNots.add("and");
+                }else{
+                    AndOrNots.add("or");
                 }
-                ops.pop();
-            }
-            else if (tokens[i] == '+' || tokens[i] == '-' ||
-                    tokens[i] == '*' || tokens[i] == '/') {
-                while (!ops.empty() && (precedence.get(tokens[i]) >= precedence.get(ops.peek()))){
-                    postExpr.add(ops.peek().toString());
-                    ops.pop();
-                };
-                ops.push(tokens[i]);
-            }
-            else if(tokens[i] == 'a'){
-                StringBuffer str = new StringBuffer();
-                for(int j = 0; j < 3; ++j) str.append(tokens[i++]);
-
-            }
-            else if(tokens[i] == 'n'){
-
-            }
-            else if(tokens[i] == 'o'){
-
-            }
-            else {
-                System.out.println("Invalid Token!");
+                AndORs.add(i);
+            }else{
+                if(word.equals("not")){
+                    AndOrNots.add("not");
+                }
             }
         }
-        while(!ops.empty()){
-            postExpr.add(ops.peek().toString());
-            ops.pop();
-        }
-    }
-
-    public void evaluate(){
-        Stack<String> tmp = new Stack<>();
-        while(!postExpr.isEmpty()){
-            if(isOperator(postExpr.peek())){
-                String operator = postExpr.peek();
-                String op1 = tmp.peek();
-                tmp.pop();
-                String op2 = tmp.peek();
-                tmp.pop();
-            }
-            else{
-                tmp.push(postExpr.peek());
-                postExpr.poll();
+        if(AndOR){
+            if(AndORs.size()==1){
+                String[] subcondition=Arrays.copyOfRange(condition,0, AndORs.get(0));
+                subconditions.add(subcondition);
+                subcondition=Arrays.copyOfRange(condition, AndORs.get(0)+1,condition.length);
+                subconditions.add(subcondition);
+            }else {
+                String[] subcondition = Arrays.copyOfRange(condition, 0, AndORs.get(0));
+                subconditions.add(subcondition);
+                System.out.println("1");
+                for (int i = 0; i < AndORs.size() - 1; i++) {
+                    subcondition = Arrays.copyOfRange(condition, AndORs.get(i) + 1, AndORs.get(i + 1));
+                    subconditions.add(subcondition);
+                    System.out.println("2");
+                }
+                subcondition = Arrays.copyOfRange(condition, AndORs.get(AndORs.size() - 1) + 1, condition.length);
+                subconditions.add(subcondition);
+                System.out.println("3");
             }
         }
     }
 
-    private int calculate(String op1, String op2, String operator){
-        switch (operator) {
-            case "+": {
-                return Integer.parseInt(op1) + Integer.parseInt(op2);
-            }
-            case "-": {
-                return Integer.parseInt(op1) - Integer.parseInt(op2);
-            }
-            case "*": {
-                return Integer.parseInt(op1) * Integer.parseInt(op2);
-            }
-            case "/": {
-                return Integer.parseInt(op1) / Integer.parseInt(op2);
-            }
-            default: try {
-                throw new Exception("Unknown Operator");
-            }catch (Exception err) {
-                err.printStackTrace();
-            }
+    public void Operator(String word){
+        int order = getOrder(word);
+        if(!OperatorStack.empty() && order<=getOrder(OperatorStack.peek())){
+            NodeOperation(OperatorStack.pop());
         }
-        return 0;
+        OperatorStack.push(word);
     }
 
-    private void calculate1(String op1, String op2, String operator){
-        switch (operator) {
-            case "AND": {
+    public int Judge(String word){
+        if(word.equals("+")||word.equals("-")||word.equals("*")||word.equals("/")||word.equals("=")||word.equals(">")||word.equals("<")){
+            return 1;
+        }else if(word.equals("(")){
+            return 2;
+        }else if(word.equals(")")){
+            return 3;
+        }else{
+            return 4;
+        }
 
-            }
-            case "OR": {
+    }//1 is operators, 2 is left parenthesis, 3 is right parenthesis, 4 is operand
 
-            }
-            case "=": {
+    public int getOrder(String word){
+        if(word.equals("/")||word.equals("*")) return 2;
+        else if(word.equals("+")||word.equals("-")||word.equals(">")||word.equals("<")) return 1;
+        else if(word.equals("=")) return 0;
+        else return -1;
+    }
 
-            }
-            case ">": {
+    public void NodeOperation(String rootName){
+        TreeNode right=TreeNodeStack.pop();//first right, then left
+        TreeNode left=TreeNodeStack.pop();
+        TreeNode root =new TreeNode(rootName,left,right);
+        TreeNodeStack.push(root);
+    }
 
-            }
-            case "<": {
+    public void LeftParenthesis(){
+        OperatorStack.push("(");
+    }
 
-            }
-            case "NOT": {
+    public void RightParenthesis(){
+        while(!OperatorStack.empty() && !OperatorStack.peek().equals("(")){
+            NodeOperation(OperatorStack.pop());
+        }
+        OperatorStack.pop(); // pop out "("
+    }
 
-            }
-            default: try {
-                throw new Exception("Unknown Operator");
-            }catch (Exception err) {
-                err.printStackTrace();
-            }
+    public void Words(String rootName){
+        TreeNode root= new TreeNode(rootName);
+        TreeNodeStack.push(root);
+    }
+
+    public void PrintTreeNode() {
+        for(int i=0; i<Roots.size(); i++) {
+            TreeNode root=Roots.get(i);
+            PrintTraversal(root);
         }
     }
 
-    private boolean isOperator(String op){
-        if(op.equals("+") || op.equals("-") || op.equals("*") || op.equals("/") ||
-                op.equals("|") || op.equals("&") || op.equals("^")){
-            return true;
+    public void checkTuple(Tuple tuple){
+        ArrayList<String> TotalResult=new ArrayList<String>();
+        for(int i=0; i<Roots.size(); i++){
+            TotalResult.add(ReturnResults(tuple, Roots.get(i)));
         }
-        return false;
+        int j=0;
+        for(int i=0; i<AndOrNots.size(); i++){
+            String condition=AndOrNots.get(i);
+            if(condition.equals("not")){
+                if(TotalResult.get(j).equals("true"))
+                    TotalResult.set(j,"false");
+                else TotalResult.set(j,"true");
+            }else{
+                if(condition.equals("and")){
+                    if(TotalResult.get(j).equals("true")&&TotalResult.get(j+1).equals("true")){
+
+                    }else{
+                        TotalResult.set(j,"false");
+                        TotalResult.set(j+1,"false");
+                    }
+                }else{
+                    if(TotalResult.get(j).equals("true")||TotalResult.get(j+1).equals("true")){
+                        TotalResult.set(j,"true");
+                        TotalResult.set(j+1,"true");
+                    }
+                }
+                j++;
+            }
+        }
+        for(String s : TotalResult){
+            System.out.println(s);
+        }
     }
 
-    public static void main(String[] args){
-        ExpressionTree exprTree = new ExpressionTree();
-        String test = "1 + 2 * 3";
-        exprTree.infix2postfix(test);
-        exprTree.evaluate();
+    private void PrintTraversal(TreeNode root){
+        if(root.leftchild!=null) PrintTraversal(root.leftchild);
+        root.PrintNode();
+        if(root.rightchild!=null) PrintTraversal(root.rightchild);
+    }
+
+    private String ReturnResults(Tuple tuple, TreeNode root){
+        String word=root.root;
+        if(word.equals("+")){
+            String left=ReturnResults(tuple, root.leftchild);
+            String right=ReturnResults(tuple, root.rightchild);
+            int Intleft=Integer.parseInt(left);
+            int Intright=Integer.parseInt(right);
+            return String.valueOf(Intleft+Intright);
+        }else if(word.equals("*")){
+            String left=ReturnResults(tuple, root.leftchild);
+            String right=ReturnResults(tuple, root.rightchild);
+            int Intleft=Integer.parseInt(left);
+            int Intright=Integer.parseInt(right);
+            return String.valueOf(Intleft*Intright);
+        }else if(word.equals("-")){
+            String left=ReturnResults(tuple, root.leftchild);
+            String right=ReturnResults(tuple, root.rightchild);
+            int Intleft=Integer.parseInt(left);
+            int Intright=Integer.parseInt(right);
+            return String.valueOf(Intleft-Intright);
+        }else if(word.equals("/")){
+            String left=ReturnResults(tuple, root.leftchild);
+            String right=ReturnResults(tuple, root.rightchild);
+            int Intleft=Integer.parseInt(left);
+            int Intright=Integer.parseInt(right);
+            return String.valueOf(Intleft/Intright);
+        }else if(word.equals("<")){
+            String left=ReturnResults(tuple, root.leftchild);
+            String right=ReturnResults(tuple, root.rightchild);
+            int Intleft=Integer.parseInt(left);
+            int Intright=Integer.parseInt(right);
+            return String.valueOf(Intleft<Intright);
+        }else if(word.equals(">")){
+            String left=ReturnResults(tuple, root.leftchild);
+            String right=ReturnResults(tuple, root.rightchild);
+            int Intleft=Integer.parseInt(left);
+            int Intright=Integer.parseInt(right);
+            return String.valueOf(Intleft>Intright);
+        }else if(word.equals("=")){
+            String left=ReturnResults(tuple, root.leftchild);
+            String right=ReturnResults(tuple, root.rightchild);
+            if(isInteger(left)&&isInteger(right)){
+                int Intleft=Integer.parseInt(left);
+                int Intright=Integer.parseInt(right);
+                return String.valueOf(Intleft==Intright);
+            }else{
+                return String.valueOf(left.equals(right));
+            }
+        }else if(isInteger(word)){
+            return word;
+        }else{
+            if(!tuple.getField(word).toString().equals("")){
+                return tuple.getField(word).toString();
+            }else{
+                return word;
+            }
+        }
+
+    }
+
+    private static boolean isInteger(String s){
+        try{
+            Integer.parseInt(s);
+        }catch (NumberFormatException e){
+            return false;
+        }catch (NullPointerException e){
+            return false;
+        }
+        return true;
     }
 }

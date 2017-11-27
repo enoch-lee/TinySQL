@@ -26,27 +26,93 @@ public class Parser {
                 }
             }
         }
-        /*
-        for(FieldType s : stmt.fieldTypes){
-            System.out.println(s);
-        }
-        */
         return stmt;
-    }
-
-    private boolean SelectStatement(String m){
-        System.out.println("I'm in Select");
-        String[] Command= m.trim().toLowerCase().split("\\s");
-        return true;
     }
 
     public String dropStatement(String sql){
         return sql.split("[\\s]+")[2];
     }
 
-    private String deleteStatement(String sql){
+    public Statement selectStatement(String m){
+        String[] Command= m.trim().toLowerCase().replaceAll("[,\\s]+", " ").split("\\s");
 
-        return null;
+        Statement stmt = new Statement();
+        ParseTree parseTree = new ParseTree("select");
+
+        for(int i=0; i<Command.length;i++) {
+            String word=Command[i];
+            //System.out.print(word);
+            if (word.equals("distinct")) {
+                parseTree.distinct=true;
+                parseTree.distID=i;
+            }
+            if (word.equals("from")){
+                parseTree.fromID=i;
+            }
+            if (word.equals("where")){
+                parseTree.whereID=i;
+                parseTree.where=true;
+            }
+            if(i<=Command.length-2){
+                if (word.equals("order")&&Command[i+1].equals("by")){
+                    parseTree.order=true;
+                    parseTree.orderID=i;
+                }
+            }
+        }
+        if(parseTree.distinct) {
+            parseTree.dist_attribute = Command[parseTree.distID + 1];
+            parseTree.attributes = new ArrayList<String>(Arrays.asList(Arrays.copyOfRange(Command, 2, parseTree.fromID)));
+        }else{
+            parseTree.attributes =  new ArrayList<String>(Arrays.asList(Arrays.copyOfRange(Command, 1, parseTree.fromID)));
+        }
+        if(parseTree.where){
+            parseTree.tables= new ArrayList<String>(Arrays.asList(Arrays.copyOfRange(Command, parseTree.fromID+1, parseTree.whereID)));
+            if(parseTree.order){
+                String[] condition= Arrays.copyOfRange(Command, parseTree.whereID+1, parseTree.orderID);
+                parseTree.expressionTree = new ExpressionTree(condition);
+                parseTree.expressionTree.PrintTreeNode();
+                parseTree.orderBy=Command[Command.length-1];
+            }else{
+                String[] condition=Arrays.copyOfRange(Command, parseTree.whereID+1,Command.length);
+                parseTree.expressionTree= new ExpressionTree(condition);
+                parseTree.expressionTree.PrintTreeNode();
+            }
+        }else{
+            if(parseTree.order){
+                parseTree.tables= new ArrayList<String>(Arrays.asList(Arrays.copyOfRange(Command,parseTree.fromID+1, parseTree.orderID)));
+            }else{
+                parseTree.tables= new ArrayList<String>(Arrays.asList(Arrays.copyOfRange(Command, parseTree.fromID+1, Command.length)));
+            }
+        }
+
+        stmt.parseTree = parseTree;
+        return stmt;
+    }
+
+    public Statement deleteStatement(String m){
+        String[] Command= m.trim().toLowerCase().replaceAll("[,\\s]+", " ").split("\\s");
+        ParseTree parseTree = new ParseTree("delete");
+        Statement stmt = new Statement();
+
+        for(int i=0; i<Command.length;i++) {
+            String word=Command[i];
+            //System.out.println(word);
+            if (word.equals("where")){
+                parseTree.whereID=i;
+                parseTree.where=true;
+            }
+        }
+        if(parseTree.where){
+            parseTree.tables= new ArrayList<String>(Arrays.asList(Arrays.copyOfRange(Command, parseTree.fromID+1, parseTree.whereID)));
+            String[] condition=Arrays.copyOfRange(Command, parseTree.whereID+1,Command.length);
+            parseTree.expressionTree= new ExpressionTree(condition);
+            parseTree.expressionTree.PrintTreeNode();
+        }else{
+            parseTree.tables= new ArrayList<String>(Arrays.asList(Arrays.copyOfRange(Command, parseTree.fromID+1, Command.length)));
+        }
+        stmt.parseTree = parseTree;
+        return stmt;
     }
 
     public Statement insertStatement(String sql){
@@ -78,9 +144,11 @@ public class Parser {
     public static void main(String[] args) throws IOException{
         String test1 = "create table table_name (c1 int, c2 int, c3 int)";
         String test2 = "insert into table_name (c1, c2, c3) values (1, 2, 3)";
+        String test3 = "select * from table_name where a > 3 and c = 2";
         Parser p = new Parser();
         p.createStatement(test1);
         p.insertStatement(test2);
+        p.selectStatement(test3);
     }
 }
 
