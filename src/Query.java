@@ -134,6 +134,7 @@ public class Query {
         schemaMG.deleteRelation(parser.dropStatement(sql).trim());
     }
 
+    //todo: 1. optimize delete  2. holes  3. filed size == 0
     private void deleteQuery(String sql){
         Statement stmt = parser.deleteStatement(sql);
         ParseTree parseTree = stmt.parseTree;
@@ -157,25 +158,32 @@ public class Query {
         }
     }
 
+    //done: 1. handle null 2. handle "E"
     private void insertQuery(String sql){
         Statement stmt = parser.insertStatement(sql);
         Schema schema = schemaMG.getSchema(stmt.tableName);
         Relation relation = schemaMG.getRelation(stmt.tableName);
-        //System.out.println(stmt.fieldValues.get(0).size());
         for(int i = 0; i < stmt.fieldValues.size(); ++i){
             Tuple tuple = relation.createTuple();
             for(int j = 0; j < stmt.fieldValues.get(0).size(); ++j ){
                 String value = stmt.fieldValues.get(i).get(j);
                 if(schema.getFieldType(j) == FieldType.INT){
-                    tuple.setField(j, Integer.parseInt(value));
+                    //handle NULL case
+                    if(value.equals("NULL")){
+                        tuple.setField(stmt.fieldNames.get(j), "NULL");
+                    }else{
+                        tuple.setField(stmt.fieldNames.get(j), Integer.parseInt(value));
+                    }
                 }else{
-                    tuple.setField(j, value);
+                    if(value.equals("NULL")){
+                        tuple.setField(stmt.fieldNames.get(j), "NULL");
+                    }else{
+                        tuple.setField(stmt.fieldNames.get(j), value);
+                    }
                 }
             }
-            //System.out.println(tuple.getField(0).integer);
             appendTuple2Relation(relation, tuple, 0);
         }
-        //System.out.println(relation.getNumOfTuples());
     }
 
     private static void appendTuple2Relation(Relation relation, Tuple tuple, int memBlockIndex){
@@ -193,6 +201,8 @@ public class Query {
             }
         }else{
             block = memory.getBlock(memBlockIndex);
+            //be sure to clear the main memory block
+            block.clear();
             block.appendTuple(tuple);
             relation.setBlock(0, memBlockIndex);
         }
@@ -200,11 +210,14 @@ public class Query {
 
     public static void main(String[] args) throws IOException {
         Query q = new Query();
-        q.parseQuery("create table table_name (c1 int, c2 int, c3 str20)");
-        q.parseQuery("insert into table_name (c1, c2, c3) values (10, 10, test1)");
-        q.parseQuery("insert into table_name (c1, c2, c3) values (10, 20, test2)");
-        q.parseQuery("insert into table_name (c1, c2, c3) values (5, 30, test3)");
-        q.parseQuery("select distinct c1 from table_name");
-        q.parseQuery("drop table table_name");
+        q.parseQuery("create table a (c1 int, c2 int, c3 str20)");
+        q.parseQuery("create table b (c1 int, c2 int, c3 str20)");
+        q.parseQuery("insert into a (c1, c2, c3) values (20, 10, a)");
+        q.parseQuery("insert into b (c1, c2, c3) values (20, 10, \"b\")");
+        q.parseQuery("insert into b (c1, c2, c3) values (10, 20, c)");
+//        q.parseQuery("insert into table_name (c1, c2, c3) values (5, 30, test3)");
+//        q.parseQuery("delete from table_name where c1 = 5");
+        q.parseQuery("select * from b");
+//        q.parseQuery("drop table table_name");
     }
 }
