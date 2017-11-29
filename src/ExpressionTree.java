@@ -89,15 +89,15 @@ public class ExpressionTree {
             }else {
                 String[] subcondition = Arrays.copyOfRange(condition, 0, AndORs.get(0));
                 subconditions.add(subcondition);
-                System.out.println("1");
+                //System.out.println("1");
                 for (int i = 0; i < AndORs.size() - 1; i++) {
                     subcondition = Arrays.copyOfRange(condition, AndORs.get(i) + 1, AndORs.get(i + 1));
                     subconditions.add(subcondition);
-                    System.out.println("2");
+                    //System.out.println("2");
                 }
                 subcondition = Arrays.copyOfRange(condition, AndORs.get(AndORs.size() - 1) + 1, condition.length);
                 subconditions.add(subcondition);
-                System.out.println("3");
+                //System.out.println("3");
             }
         }
     }
