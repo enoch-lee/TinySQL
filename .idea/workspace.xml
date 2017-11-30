@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c736d3e8-e5fe-4871-b7e1-8bb8d4f8d8b4" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Pair.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/QueryHelper.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/TupleComparator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/608TinySQL/Query$1.class" afterPath="$PROJECT_DIR$/out/production/608TinySQL/Query$1.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/608TinySQL/Query.class" afterPath="$PROJECT_DIR$/out/production/608TinySQL/Query.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Query.java" afterPath="$PROJECT_DIR$/src/Query.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/storageManager/MainMemory.java" afterPath="$PROJECT_DIR$/src/storageManager/MainMemory.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/Pair.java" afterPath="" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -62,7 +55,7 @@
       <file leaf-file-name="QueryHelper.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/QueryHelper.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="265">
+            <state relative-caret-position="1454">
               <caret line="83" column="52" lean-forward="false" selection-start-line="83" selection-start-column="52" selection-end-line="83" selection-end-column="52" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -158,8 +151,8 @@
       <find>system</find>
       <find>print</find>
       <find>clear</find>
-      <find>System</find>
       <find>sort</find>
+      <find>System</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -846,16 +839,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Pair.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="2" selection-end-line="8" selection-end-column="3" />
-          <folding>
-            <element signature="e#0#188#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/storageManager/Field.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="336">
@@ -885,9 +868,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/Pair.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="2" selection-end-line="8" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/QueryHelper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="265">
+        <state relative-caret-position="1454">
           <caret line="83" column="52" lean-forward="false" selection-start-line="83" selection-start-column="52" selection-end-line="83" selection-end-column="52" />
           <folding>
             <element signature="imports" expanded="true" />
