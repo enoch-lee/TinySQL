@@ -11,12 +11,14 @@ public class Query {
     private static MainMemory memory;
     private static Disk disk;
     private static SchemaManager schemaMG;
+    private static QueryHelper helper;
 
     public Query(){
         parser = new Parser();
         memory = new MainMemory();
         disk = new Disk();
         schemaMG = new SchemaManager(memory, disk);
+        helper = new QueryHelper();
         disk.resetDiskIOs();
         disk.resetDiskTimer();
     }
@@ -45,6 +47,14 @@ public class Query {
         schemaMG.createRelation(stmt.tableName, schema);
     }
 
+    private void sort(String relationName, String fieldName){
+        Relation relation = schemaMG.getRelation(relationName);
+        QueryHelper.twoPassSort(relation, memory, fieldName);
+//        for(Tuple tuple : tmp){
+//            System.out.println(tuple);
+//        }
+    }
+
     private void selectQuery(String sql){
         Statement stmt = parser.selectStatement(sql);
         ArrayList<Tuple> res = new ArrayList<>();
@@ -71,7 +81,7 @@ public class Query {
 
         //if DISTINCT
         if(parseTree.distinct){
-            rmDuplicateTuples(res, parseTree.dist_attribute);
+            QueryHelper.twoPassRemoveDuplicate(relation, memory, parseTree.dist_attribute);
         }
         //if ORDER BY
         if(parseTree.order){
@@ -79,18 +89,19 @@ public class Query {
         }
 
         //print output tuples
-        for(Tuple tuple : res){
-            if(parseTree.attributes.get(0).equals("*")){
-                System.out.println(tuple);
-            }else{
-                for(String attr : parseTree.attributes){
-                    if(!tuple.isNull()) System.out.print(tuple.getField(attr) + " ");
-                }
-                System.out.println();
-            }
-        }
+//        for(Tuple tuple : res){
+//            if(parseTree.attributes.get(0).equals("*")){
+//                System.out.println(tuple);
+//            }else{
+//                for(String attr : parseTree.attributes){
+//                    if(!tuple.isNull()) System.out.print(tuple.getField(attr) + " ");
+//                }
+//                System.out.println();
+//            }
+//        }
     }
 
+    //get blocks once to reduce disk timer
     private ArrayList<Tuple> selectQueryHelper(ParseTree parseTree, Relation relation, int relationIndex, int memoryIndex, int loop ){
         Block block;
         ArrayList<Tuple> res = new ArrayList<>();
@@ -178,6 +189,7 @@ public class Query {
         }
     }
 
+
     private void rmDuplicateTuples(ArrayList<Tuple> tuples, String fieldName){
         ArrayList<Tuple> tmp = new ArrayList<>(tuples);
         tuples.clear();
@@ -220,8 +232,8 @@ public class Query {
                 deleteQueryHelper(relation, memory, parseTree, i, numOfBlocks - i);
                 break;
             }else{
-                relation.getBlocks(i, 0, Math.min(10, numOfBlocks - i));
-                deleteQueryHelper(relation, memory, parseTree, i, Math.min(10, numOfBlocks - i));
+                relation.getBlocks(i, 0, memory.getMemorySize());
+                deleteQueryHelper(relation, memory, parseTree, i, memory.getMemorySize());
                 i += 10;
             }
         }
@@ -249,9 +261,7 @@ public class Query {
     }
 
     private void clearMainMem(MainMemory memory){
-        for(int i = 0; i < memory.getMemorySize(); ++i){
-            memory.getBlock(i).clear();
-        }
+        for(int i = 0; i < memory.getMemorySize(); ++i) memory.getBlock(i).clear();
     }
 
     //not optimized
@@ -331,10 +341,11 @@ public class Query {
 
     public static void main(String[] args) throws IOException {
         Query q = new Query();
-//        q.parseQuery("create table a (c1 int, c2 int)");
+//        q.parseQuery("create table a (c1 int, c2 str20)");
 //        q.parseQuery("create table b (c1 int, c2 int, c3 str20)");
-//        q.parseQuery("insert into a (c1, c2) values (5, 10)");
-//        q.parseQuery("insert into a (c1, c2) values (10, 10)");
+//        q.parseQuery("insert into a (c1, c2) values (6, \"c\")");
+//        q.parseQuery("insert into a (c1, c2) values (10, \"a\")");
+//        q.sort("a", "c1");
 //        q.parseQuery("insert into a (c1, c2) values (20, 10)");
 //        q.parseQuery("insert into a (c1, c2) values (30, 10)");
 //        q.parseQuery("insert into b (c1, c2, c3) values (20, 10, \"b\")");
@@ -343,8 +354,8 @@ public class Query {
 //        q.parseQuery("drop table table_name");
 
         q.parseQuery("create table a (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int)");
+        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (11, 2, 3, 4, 5, 6, 7, 8)");
         q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (1, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (2, 2, 3, 4, 5, 6, 7, 8)");
         q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (3, 2, 3, 4, 5, 6, 7, 8)");
         q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (4, 2, 3, 4, 5, 6, 7, 8)");
         q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (5, 2, 3, 4, 5, 6, 7, 8)");
@@ -353,10 +364,42 @@ public class Query {
         q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (8, 2, 3, 4, 5, 6, 7, 8)");
         q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (9, 2, 3, 4, 5, 6, 7, 8)");
         q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (10, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (11, 2, 3, 4, 5, 6, 7, 8)");
         q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (12, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("delete from a where c1 = 10 or c1 = 3 or c1 = 5");
-        q.parseQuery("select c1, c2 from a");
+        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (1, 2, 3, 4, 5, 6, 7, 8)");
+        q.parseQuery("select distinct c2 from a");
+//        q.sort("a", "c1");
+
+//        q.parseQuery("create table a (c1 int, c2 int, c3 int, c4 int)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (11, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (2, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (3, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (4, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (5, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (6, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (7, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (8, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (9, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (10, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (1, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (12, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (11, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (2, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (3, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (4, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (5, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (6, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (7, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (8, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (9, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (0, 2, 3, 4)");
+//        q.parseQuery("insert into a (c1, c2, c3, c4) values (1, 2, 3, 4)");
+
+
+        //q.sort("a", "c1");
+//        q.parseQuery("delete from a where c1 = 10 or c1 = 3 or c1 = 5");
+//        q.parseQuery("select c1, c2 from a");
+//        System.out.println(disk.getDiskIOs());
+//        System.out.println(disk.getDiskTimer());
     }
 }
 

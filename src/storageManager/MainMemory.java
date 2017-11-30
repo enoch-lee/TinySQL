@@ -113,7 +113,7 @@ public class MainMemory implements Serializable {
     //Writes tuples consecutively starting from memory block 
 	// memory_block_begin;
     //returns false if out of bound in memory
-    //NOTE: The input tuples must all belong to the same relation/table.
+    //NOTE: The input tuples must all belong to the same relation/table
 	  public boolean setTuples(int memory_block_begin, 
 			  				    ArrayList<Tuple> tuples) {
 	    if (memory_block_begin<0 || 
