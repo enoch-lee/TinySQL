@@ -47,14 +47,6 @@ public class Query {
         schemaMG.createRelation(stmt.tableName, schema);
     }
 
-    private void sort(String relationName, String fieldName){
-        Relation relation = schemaMG.getRelation(relationName);
-        QueryHelper.twoPassSort(relation, memory, fieldName);
-//        for(Tuple tuple : tmp){
-//            System.out.println(tuple);
-//        }
-    }
-
     private void selectQuery(String sql){
         Statement stmt = parser.selectStatement(sql);
         ArrayList<Tuple> res = new ArrayList<>();
@@ -81,7 +73,12 @@ public class Query {
 
         //if DISTINCT
         if(parseTree.distinct){
-            QueryHelper.twoPassRemoveDuplicate(relation, memory, parseTree.dist_attribute);
+            if(relation.getNumOfBlocks() > memory.getMemorySize()){
+                res = QueryHelper.twoPassRemoveDuplicate(relation, memory, parseTree.dist_attribute);
+            }else{
+                res = QueryHelper.onePassRemoveDuplicate(relation, memory, parseTree.dist_attribute);
+            }
+
         }
         //if ORDER BY
         if(parseTree.order){
@@ -89,16 +86,16 @@ public class Query {
         }
 
         //print output tuples
-//        for(Tuple tuple : res){
-//            if(parseTree.attributes.get(0).equals("*")){
-//                System.out.println(tuple);
-//            }else{
-//                for(String attr : parseTree.attributes){
-//                    if(!tuple.isNull()) System.out.print(tuple.getField(attr) + " ");
-//                }
-//                System.out.println();
-//            }
-//        }
+        for(Tuple tuple : res){
+            if(parseTree.attributes.get(0).equals("*")){
+                System.out.println(tuple);
+            }else{
+                for(String attr : parseTree.attributes){
+                    if(!tuple.isNull()) System.out.print(tuple.getField(attr) + " ");
+                }
+                System.out.println();
+            }
+        }
     }
 
     //get blocks once to reduce disk timer
@@ -168,7 +165,6 @@ public class Query {
             }
         }
     }
-
     private void sortTuples(ArrayList<Tuple> tuples, String fieldName){
         ArrayList<Tuple> tmp = new ArrayList<>();
         PriorityQueue<Tuple> pq = new PriorityQueue<Tuple>(new Comparator<Tuple>() {
@@ -188,8 +184,6 @@ public class Query {
             tuples.add(pq.poll());
         }
     }
-
-
     private void rmDuplicateTuples(ArrayList<Tuple> tuples, String fieldName){
         ArrayList<Tuple> tmp = new ArrayList<>(tuples);
         tuples.clear();
@@ -215,8 +209,7 @@ public class Query {
         schemaMG.deleteRelation(parser.dropStatement(sql).trim());
     }
 
-    //done: 1. optimize delete  2. filed size == 0
-    //todo: 1. holes
+    //done: 1. optimize delete  2. filed size == 0  3. fill "holes"
     private void deleteQuery(String sql){
         Statement stmt = parser.deleteStatement(sql);
         ParseTree parseTree = stmt.parseTree;
@@ -237,6 +230,7 @@ public class Query {
                 i += 10;
             }
         }
+        QueryHelper.fillHoles(relation, memory);
     }
 
     private void deleteQueryHelper(Relation relation, MainMemory memory, ParseTree parseTree, int relation_block_index, int num_blocks){
@@ -258,10 +252,6 @@ public class Query {
         }
         relation.setBlocks(relation_block_index, 0, num_blocks);
         clearMainMem(memory);
-    }
-
-    private void clearMainMem(MainMemory memory){
-        for(int i = 0; i < memory.getMemorySize(); ++i) memory.getBlock(i).clear();
     }
 
     //not optimized
@@ -339,6 +329,10 @@ public class Query {
         }
     }
 
+    private void clearMainMem(MainMemory memory){
+        for(int i = 0; i < memory.getMemorySize(); ++i) memory.getBlock(i).clear();
+    }
+
     public static void main(String[] args) throws IOException {
         Query q = new Query();
 //        q.parseQuery("create table a (c1 int, c2 str20)");
@@ -366,7 +360,8 @@ public class Query {
         q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (10, 2, 3, 4, 5, 6, 7, 8)");
         q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (12, 2, 3, 4, 5, 6, 7, 8)");
         q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (1, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("select distinct c2 from a");
+        q.parseQuery("delete from a where c1 = 5 or c1 = 1");
+        q.parseQuery("select * from a");
 //        q.sort("a", "c1");
 
 //        q.parseQuery("create table a (c1 int, c2 int, c3 int, c4 int)");

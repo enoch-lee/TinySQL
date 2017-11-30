@@ -17,32 +17,124 @@ public class QueryHelper {
         for(int i = 0; i < memory.getMemorySize(); ++i) memory.getBlock(i).clear();
     }
 
-    //general sort
+    //general sorting
     public static ArrayList<Tuple> onePassSort(Relation relation, MainMemory memory){
         int numOfBlocks = relation.getNumOfBlocks();
-        relation.setBlocks(0, 0, numOfBlocks);
+        relation.getBlocks(0, 0, numOfBlocks);
         ArrayList<Tuple> tuples = memory.getTuples(0, numOfBlocks);
         tuples.sort(new TupleComparator());
         clearMainMem(memory);
         return tuples;
     }
 
-    //sort relation by certain field
-    public static ArrayList<Tuple> onePassSort(Relation relation, MainMemory memory, String fieldName){
+    //sorting relation by certain field
+    public static ArrayList<Tuple> onePassSort(Relation relation, String fieldName, MainMemory memory){
         int numOfBlocks = relation.getNumOfBlocks();
-        relation.setBlocks(0, 0, numOfBlocks);
+        relation.getBlocks(0, 0, numOfBlocks);
         ArrayList<Tuple> tuples = memory.getTuples(0, numOfBlocks);
         tuples.sort(new TupleComparator(fieldName));
         clearMainMem(memory);
         return tuples;
     }
 
-    //sort main memory
+    //general main memory sorting
+    public static ArrayList<Tuple> onePassSort(MainMemory memory, int numOfBlocks){
+        ArrayList<Tuple> tuples = memory.getTuples(0, numOfBlocks);
+        tuples.sort(new TupleComparator());
+        clearMainMem(memory);
+        return tuples;
+    }
+
+    //sorting main memory by certain field
     public static ArrayList<Tuple> onePassSort(MainMemory memory, String fieldName, int numOfBlocks){
         ArrayList<Tuple> tuples = memory.getTuples(0, numOfBlocks);
         tuples.sort(new TupleComparator(fieldName));
         clearMainMem(memory);
         return tuples;
+    }
+
+    private static void twoPassHelper(Relation relation, MainMemory memory, String fieldName){
+        int numOfBlocks = relation.getNumOfBlocks(),  sortedBlocks = 0;
+        ArrayList<Tuple> tuples;
+        while(sortedBlocks < numOfBlocks){
+            int t = Math.min(memory.getMemorySize(), numOfBlocks - sortedBlocks);
+            relation.getBlocks(sortedBlocks, 0, t);
+            tuples = onePassSort(memory, fieldName, t);
+            memory.setTuples(0, tuples);
+            relation.setBlocks(sortedBlocks, 0, t);
+            //t <= memory.getMemorySize() ---> error!!!!(When numOfBlocks > 10)
+            if(t < memory.getMemorySize()) {
+                break;
+            }else{
+                sortedBlocks += memory.getMemorySize();
+            }
+            clearMainMem(memory);
+        }
+    }
+    public static void fillHoles(Relation relation, MainMemory memory){
+        int numOfBlocks = relation.getNumOfBlocks(),  sortedBlocks = 0;
+        ArrayList<Tuple> tuples;
+        while(sortedBlocks < numOfBlocks){
+            int t = Math.min(memory.getMemorySize(), numOfBlocks - sortedBlocks);
+            relation.getBlocks(sortedBlocks, 0, t);
+            tuples = onePassSort(memory, t);
+            memory.setTuples(0, tuples);
+            relation.setBlocks(sortedBlocks, 0, t);
+            //t <= memory.getMemorySize() ---> error!!!!(When numOfBlocks > 10)
+            if(t < memory.getMemorySize()) {
+                break;
+            }else{
+                sortedBlocks += memory.getMemorySize();
+            }
+            clearMainMem(memory);
+        }
+    }
+
+    public static ArrayList<Tuple> twoPassSort(Relation relation, MainMemory memory, String fieldName){
+        //phase 1: making sorted sublists
+        twoPassHelper(relation, memory, fieldName);
+
+        //phase 2: merging
+        int numOfBlocks = relation.getNumOfBlocks();
+        ArrayList<Tuple> res = new ArrayList<>();
+        ArrayList<ArrayList<Tuple>> tuples = new ArrayList<>();
+        ArrayList<Pair<Integer, Integer>> blockIndexOfSublists = new ArrayList<>();
+
+        //bring in a block from each of the sorted sublists
+        for(int i = 0, j = 0; i < numOfBlocks; i += memory.getMemorySize(), j++){
+            //initial index must be i + 1
+            blockIndexOfSublists.add(new Pair<>(i + 1, Math.min(i + memory.getMemorySize(), numOfBlocks)));
+            relation.getBlock(i, j);
+            tuples.add(memory.getTuples(j, 1));
+        }
+
+        for(int k = 0; k < relation.getNumOfTuples(); ++k){
+            for(int i = 0; i < blockIndexOfSublists.size(); ++i){
+                //read in the next block form a sublist if its block is exhausted
+                if(tuples.get(i).isEmpty() && (blockIndexOfSublists.get(i).first < blockIndexOfSublists.get(i).second)){
+                    relation.getBlock(blockIndexOfSublists.get(i).first, i);
+                    tuples.set(i, memory.getTuples(i, 1));
+                    blockIndexOfSublists.get(i).first++;
+                }
+            }
+
+            //find the smallest key among the first remaining elements of all the sublists
+            ArrayList<Tuple> minTuples = new ArrayList<>();
+            for(int j = 0; j < tuples.size(); ++j){
+                if(!tuples.isEmpty() && !tuples.get(j).isEmpty()) minTuples.add(tuples.get(j).get(0));
+            }
+            Tuple minTuple = Collections.min(minTuples, new TupleComparator(fieldName));
+            res.add(minTuple);
+
+            //remove the minimum element
+            for(int j = 0; j < tuples.size(); ++j){
+                if(!tuples.get(j).isEmpty() && tuples.get(j).get(0).equals(minTuple)) tuples.get(j).remove(0);
+            }
+        }
+
+        for(Tuple tuple : res) System.out.println(tuple);
+        clearMainMem(memory);
+        return res;
     }
 
     public static ArrayList<Tuple> onePassRemoveDuplicate(Relation relation, MainMemory memory, String fieldName){
@@ -99,7 +191,7 @@ public class QueryHelper {
 
             //the first difference to twoPassSort -
             //multiple elements could be removed in one loop, the number of loops could be less than numOfBlocks
-            //so the loop may break
+            //so the loop could break earlier
             if(minTuples.isEmpty()) break;
 
             Tuple minTuple = Collections.min(minTuples, new TupleComparator(fieldName));
@@ -110,7 +202,7 @@ public class QueryHelper {
                 if(hashSet.add(Integer.toString(minTuple.getField(fieldName).integer))) res.add(minTuple);
             }
 
-            //the 3rd difference - remove all minimum element
+            //the 3rd difference - remove all minimum elements
             for(int j = 0; j < tuples.size(); ++j){
                 if(!tuples.get(j).isEmpty()) {
                     if(tuples.get(j).get(0).getField(fieldName).type.equals(minTuple.getField(fieldName).type)){
@@ -123,72 +215,6 @@ public class QueryHelper {
                         }
                     }
                 }
-            }
-        }
-
-        for(Tuple tuple : res) System.out.println(tuple);
-        clearMainMem(memory);
-        return res;
-    }
-
-    private static void twoPassHelper(Relation relation, MainMemory memory, String fieldName){
-        int numOfBlocks = relation.getNumOfBlocks(),  sortedBlocks = 0;
-        ArrayList<Tuple> tuples;
-        while(sortedBlocks < numOfBlocks){
-            int t = Math.min(memory.getMemorySize(), numOfBlocks - sortedBlocks);
-            relation.getBlocks(sortedBlocks, 0, t);
-            tuples = onePassSort(memory, fieldName, t);
-            memory.setTuples(0, tuples);
-            relation.setBlocks(sortedBlocks, 0, t);
-            //t <= memory.getMemorySize() -> error!!!!(When numOfBlocks > 10)
-            if(t < memory.getMemorySize()) {
-                break;
-            }else{
-                sortedBlocks += memory.getMemorySize();
-            }
-            clearMainMem(memory);
-        }
-    }
-
-    public static ArrayList<Tuple> twoPassSort(Relation relation, MainMemory memory, String fieldName){
-        //phase 1: making sorted sublists
-        twoPassHelper(relation, memory, fieldName);
-
-        //phase 2: merging
-        int numOfBlocks = relation.getNumOfBlocks();
-        ArrayList<Tuple> res = new ArrayList<>();
-        ArrayList<ArrayList<Tuple>> tuples = new ArrayList<>();
-        ArrayList<Pair<Integer, Integer>> blockIndexOfSublists = new ArrayList<>();
-
-        //bring in a block from each of the sorted sublists
-        for(int i = 0, j = 0; i < numOfBlocks; i += memory.getMemorySize(), j++){
-            //initial index must be i + 1
-            blockIndexOfSublists.add(new Pair<>(i + 1, Math.min(i + memory.getMemorySize(), numOfBlocks)));
-            relation.getBlock(i, j);
-            tuples.add(memory.getTuples(j, 1));
-        }
-
-        for(int k = 0; k < relation.getNumOfTuples(); ++k){
-            for(int i = 0; i < blockIndexOfSublists.size(); ++i){
-                //read in the next block form a sublist if its block is exhausted
-                if(tuples.get(i).isEmpty() && (blockIndexOfSublists.get(i).first < blockIndexOfSublists.get(i).second)){
-                    relation.getBlock(blockIndexOfSublists.get(i).first, i);
-                    tuples.set(i, memory.getTuples(i, 1));
-                    blockIndexOfSublists.get(i).first++;
-                }
-            }
-
-            //find the smallest key among the first remaining elements of all the sublists
-            ArrayList<Tuple> minTuples = new ArrayList<>();
-            for(int j = 0; j < tuples.size(); ++j){
-                if(!tuples.isEmpty() && !tuples.get(j).isEmpty()) minTuples.add(tuples.get(j).get(0));
-            }
-            Tuple minTuple = Collections.min(minTuples, new TupleComparator(fieldName));
-            res.add(minTuple);
-
-            //remove the minimum element
-            for(int j = 0; j < tuples.size(); ++j){
-                if(!tuples.get(j).isEmpty() && tuples.get(j).get(0).equals(minTuple)) tuples.get(j).remove(0);
             }
         }
 
