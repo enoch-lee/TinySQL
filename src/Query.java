@@ -13,6 +13,10 @@ public class Query {
     private static SchemaManager schemaMG;
     private static QueryHelper helper;
 
+    public SchemaManager getSchemaMG() {
+        return schemaMG;
+    }
+
     public Query(){
         parser = new Parser();
         memory = new MainMemory();
@@ -23,31 +27,37 @@ public class Query {
         disk.resetDiskTimer();
     }
 
-    public void parseQuery(String m){
+    private static void reset(){
+        disk.resetDiskIOs();
+        disk.resetDiskTimer();
+    }
+
+    public static void parseQuery(String m){
+        m = m.toLowerCase();
         String[] Command= m.trim().toLowerCase().split("\\s");
         String first = Command[0];
         switch (first){
-            case "create": this.createQuery(m);
+            case "create": createQuery(m);
                 break;
-            case "select": this.selectQuery(m);
+            case "select": selectQuery(m);
                 break;
-            case "drop"  : this.dropQuery(m);
+            case "drop"  : dropQuery(m);
                 break;
-            case "delete": this.deleteQuery(m);
+            case "delete": deleteQuery(m);
                 break;
-            case "insert": this.insertQuery(m);
+            case "insert": insertQuery(m);
                 break;
             default: System.out.println("Not a legal command!");
         }
     }
 
-    private void createQuery(String sql){
+    private static void createQuery(String sql){
         Statement stmt = parser.createStatement(sql);
         Schema schema = new Schema(stmt.fieldNames, stmt.fieldTypes);
         schemaMG.createRelation(stmt.tableName, schema);
     }
 
-    private void selectQuery(String sql){
+    private static void selectQuery(String sql){
         Statement stmt = parser.selectStatement(sql);
         ArrayList<Tuple> res = new ArrayList<>();
         ParseTree parseTree = stmt.parseTree;
@@ -99,7 +109,7 @@ public class Query {
     }
 
     //get blocks once to reduce disk timer
-    private ArrayList<Tuple> selectQueryHelper(ParseTree parseTree, Relation relation, int relationIndex, int memoryIndex, int loop ){
+    private static ArrayList<Tuple> selectQueryHelper(ParseTree parseTree, Relation relation, int relationIndex, int memoryIndex, int loop ){
         Block block;
         ArrayList<Tuple> res = new ArrayList<>();
         relation.getBlocks(relationIndex, memoryIndex, loop);
@@ -165,7 +175,7 @@ public class Query {
             }
         }
     }
-    private void sortTuples(ArrayList<Tuple> tuples, String fieldName){
+    private static void sortTuples(ArrayList<Tuple> tuples, String fieldName){
         ArrayList<Tuple> tmp = new ArrayList<>();
         PriorityQueue<Tuple> pq = new PriorityQueue<Tuple>(new Comparator<Tuple>() {
             @Override
@@ -204,13 +214,13 @@ public class Query {
         }
     }
 
-    private void dropQuery(String sql){
+    private static void dropQuery(String sql){
         Parser parser = new Parser();
         schemaMG.deleteRelation(parser.dropStatement(sql).trim());
     }
 
     //done: 1. optimize delete  2. filed size == 0  3. fill "holes"
-    private void deleteQuery(String sql){
+    private static void deleteQuery(String sql){
         Statement stmt = parser.deleteStatement(sql);
         ParseTree parseTree = stmt.parseTree;
         String tableName = parseTree.tables.get(0);
@@ -233,7 +243,7 @@ public class Query {
         QueryHelper.fillHoles(relation, memory);
     }
 
-    private void deleteQueryHelper(Relation relation, MainMemory memory, ParseTree parseTree, int relation_block_index, int num_blocks){
+    private static void deleteQueryHelper(Relation relation, MainMemory memory, ParseTree parseTree, int relation_block_index, int num_blocks){
         Block block;
         for(int i = 0; i < num_blocks; ++i){
             block = memory.getBlock(i);
@@ -251,7 +261,7 @@ public class Query {
             }
         }
         relation.setBlocks(relation_block_index, 0, num_blocks);
-        clearMainMem(memory);
+        QueryHelper.clearMainMem(memory);
     }
 
     //not optimized
@@ -280,7 +290,7 @@ public class Query {
     }
 
     //done: 1. handle null 2. handle "E"
-    private void insertQuery(String sql){
+    private static void insertQuery(String sql){
         Statement stmt = parser.insertStatement(sql);
         Schema schema = schemaMG.getSchema(stmt.tableName);
         Relation relation = schemaMG.getRelation(stmt.tableName);
@@ -328,73 +338,49 @@ public class Query {
             relation.setBlock(0, memBlockIndex);
         }
     }
-
-    private void clearMainMem(MainMemory memory){
-        for(int i = 0; i < memory.getMemorySize(); ++i) memory.getBlock(i).clear();
+    public static Relation crossJoin(String tableOne, String tableTwo){
+        return Join.crossJoin(schemaMG, memory, tableOne, tableTwo);
+    }
+    public static ArrayList<Tuple> onePassNaturalJoin(String tableOne, String tableTwo, String fieldName){
+        return Join.onePassNaturalJoin(schemaMG, memory, tableOne, tableTwo, fieldName);
+    }
+    public static ArrayList<Tuple> twoPassNaturalJoin(String tableOne, String tableTwo, String fieldName){
+        return Join.twoPassNaturalJoin(schemaMG, memory, tableOne, tableTwo, fieldName);
     }
 
     public static void main(String[] args) throws IOException {
         Query q = new Query();
-//        q.parseQuery("create table a (c1 int, c2 str20)");
-//        q.parseQuery("create table b (c1 int, c2 int, c3 str20)");
-//        q.parseQuery("insert into a (c1, c2) values (6, \"c\")");
-//        q.parseQuery("insert into a (c1, c2) values (10, \"a\")");
-//        q.sort("a", "c1");
-//        q.parseQuery("insert into a (c1, c2) values (20, 10)");
-//        q.parseQuery("insert into a (c1, c2) values (30, 10)");
-//        q.parseQuery("insert into b (c1, c2, c3) values (20, 10, \"b\")");
-//        q.parseQuery("insert into b (c1, c2, c3) values (10, 20, c)");
-//        q.parseQuery("insert into table_name (c1, c2, c3) values (5, 30, test3)");
-//        q.parseQuery("drop table table_name");
+        Query.parseQuery("CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 100, 100, 98, \"C\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 50, 90, \"E\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, 100, 100, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (9, 100, 100, 66, \"A\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (6, 50, 50, 61, \"D\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (7, 0, 0, 0, \"E\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (8, 0, 0, 0, \"E\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (5, 50, 50, 59, \"D\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (10, 50, 50, 56, \"D\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (11, 0, 0, 0, \"E\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (12, 100, 100, 66, \"A\"");
 
-        q.parseQuery("create table a (c1 int, c2 int, c3 int, c4 int, c5 int, c6 int, c7 int, c8 int)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (11, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (1, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (3, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (4, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (5, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (6, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (7, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (8, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (9, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (10, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (12, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("insert into a (c1, c2, c3, c4, c5, c6, c7, c8) values (1, 2, 3, 4, 5, 6, 7, 8)");
-        q.parseQuery("delete from a where c1 = 5 or c1 = 1");
-        q.parseQuery("select * from a");
-//        q.sort("a", "c1");
-
-//        q.parseQuery("create table a (c1 int, c2 int, c3 int, c4 int)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (11, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (2, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (3, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (4, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (5, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (6, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (7, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (8, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (9, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (10, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (1, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (12, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (11, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (2, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (3, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (4, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (5, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (6, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (7, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (8, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (9, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (0, 2, 3, 4)");
-//        q.parseQuery("insert into a (c1, c2, c3, c4) values (1, 2, 3, 4)");
-
-
-        //q.sort("a", "c1");
-//        q.parseQuery("delete from a where c1 = 10 or c1 = 3 or c1 = 5");
-//        q.parseQuery("select c1, c2 from a");
-//        System.out.println(disk.getDiskIOs());
-//        System.out.println(disk.getDiskTimer());
+        Query.parseQuery("CREATE TABLE course2 (sid INT, exam INT, grade STR20)");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (1, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (1, 101, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (12, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (1, 25, \"E\")");
+//        Relation relation = Query.crossJoin("course", "course2");
+        ArrayList<Tuple> tuples = Query.twoPassNaturalJoin("course", "course2", "sid");
+        for(Tuple tuple : tuples) System.out.println(tuple);
     }
 }
 

@@ -1,22 +1,7 @@
 import storageManager.*;
 import java.util.*;
 
-class Pair<A, B> {
-    public A first;
-    public B second;
-
-    public Pair(A first, B second) {
-        this.first = first;
-        this.second = second;
-    }
-}
-
 public class QueryHelper {
-
-    private static void clearMainMem(MainMemory memory){
-        for(int i = 0; i < memory.getMemorySize(); ++i) memory.getBlock(i).clear();
-    }
-
     //general sorting
     public static ArrayList<Tuple> onePassSort(Relation relation, MainMemory memory){
         int numOfBlocks = relation.getNumOfBlocks();
@@ -53,31 +38,14 @@ public class QueryHelper {
         return tuples;
     }
 
-    private static void twoPassHelper(Relation relation, MainMemory memory, String fieldName){
+    public static void twoPassHelper(Relation relation, MainMemory memory, String fieldName){
         int numOfBlocks = relation.getNumOfBlocks(),  sortedBlocks = 0;
         ArrayList<Tuple> tuples;
         while(sortedBlocks < numOfBlocks){
             int t = Math.min(memory.getMemorySize(), numOfBlocks - sortedBlocks);
             relation.getBlocks(sortedBlocks, 0, t);
+            //sort main memory
             tuples = onePassSort(memory, fieldName, t);
-            memory.setTuples(0, tuples);
-            relation.setBlocks(sortedBlocks, 0, t);
-            //t <= memory.getMemorySize() ---> error!!!!(When numOfBlocks > 10)
-            if(t < memory.getMemorySize()) {
-                break;
-            }else{
-                sortedBlocks += memory.getMemorySize();
-            }
-            clearMainMem(memory);
-        }
-    }
-    public static void fillHoles(Relation relation, MainMemory memory){
-        int numOfBlocks = relation.getNumOfBlocks(),  sortedBlocks = 0;
-        ArrayList<Tuple> tuples;
-        while(sortedBlocks < numOfBlocks){
-            int t = Math.min(memory.getMemorySize(), numOfBlocks - sortedBlocks);
-            relation.getBlocks(sortedBlocks, 0, t);
-            tuples = onePassSort(memory, t);
             memory.setTuples(0, tuples);
             relation.setBlocks(sortedBlocks, 0, t);
             //t <= memory.getMemorySize() ---> error!!!!(When numOfBlocks > 10)
@@ -110,7 +78,7 @@ public class QueryHelper {
 
         for(int k = 0; k < relation.getNumOfTuples(); ++k){
             for(int i = 0; i < blockIndexOfSublists.size(); ++i){
-                //read in the next block form a sublist if its block is exhausted
+                //read in the next block from a sublist if its block is exhausted
                 if(tuples.get(i).isEmpty() && (blockIndexOfSublists.get(i).first < blockIndexOfSublists.get(i).second)){
                     relation.getBlock(blockIndexOfSublists.get(i).first, i);
                     tuples.set(i, memory.getTuples(i, 1));
@@ -221,6 +189,40 @@ public class QueryHelper {
         for(Tuple tuple : res) System.out.println(tuple);
         clearMainMem(memory);
         return res;
+    }
+
+    //sort to fill holes
+    public static void fillHoles(Relation relation, MainMemory memory){
+        int numOfBlocks = relation.getNumOfBlocks(),  sortedBlocks = 0;
+        ArrayList<Tuple> tuples;
+        while(sortedBlocks < numOfBlocks){
+            int t = Math.min(memory.getMemorySize(), numOfBlocks - sortedBlocks);
+            relation.getBlocks(sortedBlocks, 0, t);
+            tuples = onePassSort(memory, t);
+            memory.setTuples(0, tuples);
+            relation.setBlocks(sortedBlocks, 0, t);
+            //t <= memory.getMemorySize() ---> error!!!!(When numOfBlocks > 10)
+            if(t < memory.getMemorySize()) {
+                break;
+            }else{
+                sortedBlocks += memory.getMemorySize();
+            }
+            clearMainMem(memory);
+        }
+    }
+
+    public static void clearMainMem(MainMemory memory){
+        for(int i = 0; i < memory.getMemorySize(); ++i) memory.getBlock(i).clear();
+    }
+}
+
+class Pair<A, B> {
+    public A first;
+    public B second;
+
+    public Pair(A first, B second) {
+        this.first = first;
+        this.second = second;
     }
 }
 
