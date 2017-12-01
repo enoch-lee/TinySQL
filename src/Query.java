@@ -1,33 +1,24 @@
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-
 import storageManager.*;
 
 public class Query {
-    private static Parser parser;
-    private static MainMemory memory;
-    private static Disk disk;
-    private static SchemaManager schemaMG;
-    private static QueryHelper helper;
+    private static Parser parser = new Parser();
+    private static MainMemory memory = new MainMemory();
+    private static Disk disk = new Disk();
+    private static SchemaManager schemaMG = new SchemaManager(memory, disk);
 
     public SchemaManager getSchemaMG() {
         return schemaMG;
     }
 
-    public Query(){
+    public Query(){ }
+
+    private static void reset(){
         parser = new Parser();
         memory = new MainMemory();
         disk = new Disk();
         schemaMG = new SchemaManager(memory, disk);
-        helper = new QueryHelper();
-        disk.resetDiskIOs();
-        disk.resetDiskTimer();
-    }
-
-    private static void reset(){
         disk.resetDiskIOs();
         disk.resetDiskTimer();
     }
@@ -55,7 +46,6 @@ public class Query {
         Statement stmt = parser.createStatement(sql);
         Schema schema = new Schema(stmt.fieldNames, stmt.fieldTypes);
         schemaMG.createRelation(stmt.tableName, schema);
-
     }
 
     private static void selectQuery(String sql){
@@ -65,84 +55,55 @@ public class Query {
         if(parseTree.tables.size() == 1){
             selectSingleRelation(parseTree);
         }else{
-
+            selectMultiRelation(parseTree);
         }
     }
 
     private static void selectSingleRelation(ParseTree parseTree){
         String tableName = parseTree.tables.get(0);
-        ArrayList<Tuple> res = new ArrayList<>();
         Relation relation = schemaMG.getRelation(tableName);
-        int numOfBlocks = relation.getNumOfBlocks();
-        int memoryBlocks = memory.getMemorySize();
+        ArrayList<String> tempRelations = new ArrayList<>();
 
         //if DISTINCT
         if(parseTree.distinct){
             relation = QueryHelper.distinct(schemaMG, relation, memory, parseTree.dist_attribute);
+            QueryHelper.clearMainMem(memory);
+            tempRelations.add(relation.getRelationName());
         }
 
         //selection
-        if(numOfBlocks <= memoryBlocks){
-            res = selectQueryHelper(parseTree, relation, 0, 0,numOfBlocks);
-        }else{
-            int remainNumber = numOfBlocks;
-            int relationindex = 0;
-            while(remainNumber > memoryBlocks){
-                ArrayList<Tuple> result = selectQueryHelper(parseTree, relation, relationindex,0,memoryBlocks);
-                res.addAll(result);
-                remainNumber = remainNumber - memoryBlocks;
-                relationindex = relationindex + memoryBlocks;
-            }
-            ArrayList<Tuple> tmp = selectQueryHelper(parseTree, relation, relationindex, 0, remainNumber);
-            res.addAll(tmp);
+        if(parseTree.where){
+            relation = QueryHelper.select(schemaMG, relation, memory, parseTree);
+            QueryHelper.clearMainMem(memory);
+            tempRelations.add(relation.getRelationName());
         }
 
         //if ORDER BY
         if(parseTree.order){
-            if(numOfBlocks <= memoryBlocks){
-
-            }else{
-
-            }
+            relation = QueryHelper.sort(schemaMG, relation, memory, parseTree.orderBy);
+            QueryHelper.clearMainMem(memory);
+            tempRelations.add(relation.getRelationName());
         }
 
         //projection
-        for(Tuple tuple : res){
-            if(parseTree.attributes.get(0).equals("*")){
-                System.out.println(tuple);
-            }else{
-                for(String attr : parseTree.attributes){
-                    if(!tuple.isNull()) System.out.print(tuple.getField(attr) + " ");
-                }
-                System.out.println();
-            }
+        QueryHelper.project(relation, memory, parseTree);
+
+        //delete all intermediate relations
+        if(tempRelations.isEmpty()) return;
+        for(String temp : tempRelations){
+            if(schemaMG.relationExists(temp)) schemaMG.deleteRelation(temp);
         }
-
     }
 
-    private static void selctMultiRealtions(){
 
+    private static void selectMultiRelation(ParseTree parseTree){
+        Relation relation = Join.crossProduct(schemaMG, memory, parseTree.tables.get(0), parseTree.tables.get(1));
+        //projection
+        QueryHelper.project(relation, memory, parseTree);
+        schemaMG.deleteRelation(relation.getRelationName());
     }
 
-    //get blocks once to reduce disk timer
-    private static ArrayList<Tuple> selectQueryHelper(ParseTree parseTree, Relation relation, int relationIndex, int memoryIndex, int loop ){
-        Block block;
-        ArrayList<Tuple> res = new ArrayList<>();
-        relation.getBlocks(relationIndex, memoryIndex, loop);
-        for(int i=0; i<loop; i++){
-            block =memory.getBlock(i);
-            ArrayList<Tuple> tuples = block.getTuples();
-            for(Tuple tuple : tuples){
-                if(parseTree.where){
-                    parseTree.expressionTree.checkTuple(tuple);
-                }else{
-                    //System.out.println(tuple);
-                    res.add(tuple);
-                }
-            }
-        }
-        return res;
-    }
+
 
     private static void dropQuery(String sql){
         Parser parser = new Parser();
@@ -155,7 +116,6 @@ public class Query {
         ParseTree parseTree = stmt.parseTree;
         String tableName = parseTree.tables.get(0);
         Relation relation = schemaMG.getRelation(tableName);
-        Block block;
         int numOfBlocks = relation.getNumOfBlocks();
         //relation block index
         int i = 0;
@@ -249,12 +209,12 @@ public class Query {
     }
 
     public static void main(String[] args) throws IOException {
-        Query q = new Query();
+        Query.reset();
         Query.parseQuery("CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)");
         Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, \"A\")");
         Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 100, 100, 98, \"C\")");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 50, 90, \"E\")");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, 100, 100, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 100, 50, 90, \"E\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 100, 100, 100, \"A\")");
         Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (9, 100, 100, 66, \"A\")");
         Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (6, 50, 50, 61, \"D\")");
         Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (7, 0, 0, 0, \"E\")");
@@ -263,11 +223,13 @@ public class Query {
         Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (10, 50, 50, 56, \"D\")");
         Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (11, 0, 0, 0, \"E\")");
         Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (12, 100, 100, 66, \"A\"");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (12, 100, 100, 66, \"A\"");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (20, 100, 100, 66, \"A\"");
+//        Query.parseQuery("SELECT sid, grade FROM course WHERE sid > 5 ORDER BY grade");
 
-//        Query.parseQuery("CREATE TABLE course2 (sid INT, exam INT, grade STR20)");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (1, 100, \"A\")");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (1, 101, \"A\")");
+        Query.parseQuery("CREATE TABLE course2 (sid INT, exam INT, grade STR20)");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (1, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (1, 101, \"A\")");
+        Query.parseQuery("SELECT * FROM course, course2");
 //        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (12, 25, \"E\")");
 //        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
 //        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
@@ -280,8 +242,8 @@ public class Query {
 //        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
 //        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (1, 25, \"E\")");
 //        Relation relation = Query.crossJoin("course", "course2");
-        ArrayList<Tuple> tuples = Query.twoPassNaturalJoin("course", "course2", "sid");
-        for(Tuple tuple : tuples) System.out.println(tuple);
+//        ArrayList<Tuple> tuples = Query.twoPassNaturalJoin("course", "course2", "sid");
+//        for(Tuple tuple : tuples) System.out.println(tuple);
     }
 }
 

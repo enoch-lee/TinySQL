@@ -34,10 +34,9 @@ public class Join {
         }
         new_relation = schema_manager.createRelation(name, schema);
 
-
         int tupleNumber = tuples.size();
         int tuplesPerBlock = schema.getTuplesPerBlock();
-        int tupleBlocks=0;
+        int tupleBlocks;
         if(tupleNumber<tuplesPerBlock){
             tupleBlocks = 1;
         }else if(tupleNumber>tuplesPerBlock && tupleNumber%tuplesPerBlock==0){
@@ -121,6 +120,35 @@ public class Join {
         return tuples;
     }
 
+    private static ArrayList<Tuple> nestedLoopJoin(SchemaManager schema_manager, MainMemory memory, String tableOne, String tableTwo){
+        ArrayList<Tuple> tuples = new ArrayList<Tuple>();
+        Relation TableOne = schema_manager.getRelation(tableOne);
+        Relation TableTwo = schema_manager.getRelation(tableTwo);
+        int sizeOne = TableOne.getNumOfBlocks();
+        int sizeTwo = TableTwo.getNumOfBlocks();
+        Schema newSchema = combineSchema(schema_manager, tableOne, tableTwo);
+        String newName="TempTable_"+tableOne+"_crossJoin_"+tableTwo;
+        if(schema_manager.relationExists(newName)){
+            schema_manager.deleteRelation(newName);
+        }
+        Relation newRelation = schema_manager.createRelation(newName, newSchema);
+
+        for(int i=0; i<sizeOne; i++){
+            TableOne.getBlock(i,0);
+            Block blockOne = memory.getBlock(0);
+            for(int j=0; j<sizeTwo; j++){
+                TableTwo.getBlock(j,1);
+                Block blockTwo = memory.getBlock(1);
+                for(Tuple tupleOne:blockOne.getTuples()){
+                    for(Tuple tupleTwo:blockTwo.getTuples()){
+                        tuples.add(combineTuple( newRelation, tupleOne, tupleTwo));
+                    }
+                }
+            }
+        }
+        return tuples;
+    }
+
     @SuppressWarnings("Duplicates")
     private static Schema combineSchema(SchemaManager schemaManager, String tableOne, String tableTwo){
         ArrayList<String>combineFields = new ArrayList<String>();
@@ -186,34 +214,7 @@ public class Join {
         return result;
     }
 
-    private static ArrayList<Tuple> nestedLoopJoin(SchemaManager schema_manager, MainMemory memory, String tableOne, String tableTwo){
-        ArrayList<Tuple> tuples = new ArrayList<Tuple>();
-        Relation TableOne = schema_manager.getRelation(tableOne);
-        Relation TableTwo = schema_manager.getRelation(tableTwo);
-        int sizeOne = TableOne.getNumOfBlocks();
-        int sizeTwo = TableTwo.getNumOfBlocks();
-        Schema newSchema = combineSchema(schema_manager, tableOne, tableTwo);
-        String newName="TempTable_"+tableOne+"_crossJoin_"+tableTwo;
-        if(schema_manager.relationExists(newName)){
-            schema_manager.deleteRelation(newName);
-        }
-        Relation newRelation = schema_manager.createRelation(newName, newSchema);
 
-        for(int i=0; i<sizeOne; i++){
-            TableOne.getBlock(i,0);
-            Block blockOne = memory.getBlock(0);
-            for(int j=0; j<sizeTwo; j++){
-                TableTwo.getBlock(j,1);
-                Block blockTwo = memory.getBlock(1);
-                for(Tuple tupleOne:blockOne.getTuples()){
-                    for(Tuple tupleTwo:blockTwo.getTuples()){
-                        tuples.add(combineTuple( newRelation, tupleOne, tupleTwo));
-                    }
-                }
-            }
-        }
-        return tuples;
-    }
 
     private static Relation naturalJoin(SchemaManager schemaManager, MainMemory memory, String tableOne, String tableTwo, String JoinOn){
         ArrayList<Tuple> tuples;

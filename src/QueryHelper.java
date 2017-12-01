@@ -2,8 +2,162 @@ import storageManager.*;
 import java.util.*;
 
 public class QueryHelper {
+
+    //sort relations
+    public static Relation sort(SchemaManager schemaManager, Relation relation, MainMemory memory, String fieldName){
+        String name = relation.getRelationName() + "_sortBy_" + fieldName;
+        if(schemaManager.relationExists(name)) schemaManager.deleteRelation(name);
+        ArrayList<Tuple> tuples;
+        if(relation.getNumOfBlocks() <= memory.getMemorySize()){
+            tuples = onePassSort(relation, memory, fieldName);
+        }else{
+            tuples = twoPassSort(relation, memory, fieldName);
+        }
+        return createRelationFromTuples(tuples, name, schemaManager, relation, memory);
+    }
+
+    //eliminate duplicate tuples
+    public static Relation distinct(SchemaManager schemaManager, Relation relation, MainMemory memory, String fieldName){
+        String name = relation.getRelationName() + "_distinct_" + fieldName;
+        if(schemaManager.relationExists(name)) schemaManager.deleteRelation(name);
+        ArrayList<Tuple> tuples;
+        if(relation.getNumOfBlocks() <= memory.getMemorySize()){
+            tuples = onePassRemoveDuplicate(relation, memory, fieldName);
+        }else{
+            tuples = twoPassRemoveDuplicate(relation, memory, fieldName);
+        }
+        return createRelationFromTuples(tuples, name, schemaManager, relation, memory);
+    }
+
+    //selection
+    public static Relation select(SchemaManager schemaMG, Relation relation, MainMemory memory, ParseTree parseTree){
+        ArrayList<Tuple> tuples = new ArrayList<>();
+        int numOfBlocks = relation.getNumOfBlocks(), memoryBlocks = memory.getMemorySize();
+
+        if(numOfBlocks <= memoryBlocks){
+            tuples = selectQueryHelper(parseTree, relation, memory,0, numOfBlocks);
+        }else{
+            int remainNumber = numOfBlocks;
+            int relationindex = 0;
+            ArrayList<Tuple> tmp;
+            while(remainNumber > memoryBlocks){
+                tmp = selectQueryHelper(parseTree, relation, memory, relationindex, memoryBlocks);
+                tuples.addAll(tmp);
+                remainNumber = remainNumber - memoryBlocks;
+                relationindex = relationindex + memoryBlocks;
+            }
+            tmp = selectQueryHelper(parseTree, relation, memory, relationindex, remainNumber);
+            tuples.addAll(tmp);
+        }
+        String name = relation.getRelationName() + "_select_";
+        if(schemaMG.relationExists(name)) schemaMG.deleteRelation(name);
+        return createRelationFromTuples(tuples, name, schemaMG, relation, memory);
+    }
+
+    public static void project(Relation relation, MainMemory memory, ParseTree parseTree){
+        int numOfBlocks = relation.getNumOfBlocks();
+        int i = 0;
+        //System.out.println(relation);
+        while(i < numOfBlocks){
+            int t = Math.min(memory.getMemorySize(), numOfBlocks - i);
+            relation.getBlocks(i, 0, t);
+            if(memory.getBlock(0).isEmpty()){
+                System.out.println("No Selected Tuples");
+                return;
+            }
+            projectHelper(relation, memory, parseTree, t);
+            if(t <= memory.getMemorySize()) break;
+            else i += 10;
+        }
+    }
+
+    private static void projectHelper(Relation relation, MainMemory memory, ParseTree parseTree, int memBlocks){
+        ArrayList<Tuple> tuples = memory.getTuples(0, memBlocks);
+        if(parseTree.attributes.get(0).equals("*")){
+            System.out.print(relation.getSchema().getFieldNames());
+        }else{
+            for(String attr : parseTree.attributes){
+                System.out.print(attr + " ");
+            }
+        }
+        System.out.println();
+        for(Tuple tuple : tuples){
+            if(parseTree.attributes.get(0).equals("*")){
+                System.out.println(tuple);
+            }else{
+                for(String attr : parseTree.attributes){
+                    if(!tuple.isNull()) System.out.print(tuple.getField(attr) + " ");
+                }
+                System.out.println();
+            }
+        }
+        QueryHelper.clearMainMem(memory);
+    }
+
+    //get blocks once to reduce disk timer
+    private static ArrayList<Tuple> selectQueryHelper(ParseTree parseTree, Relation relation, MainMemory memory, int relationIndex, int loop ){
+        Block block;
+        ArrayList<Tuple> res = new ArrayList<>();
+        relation.getBlocks(relationIndex, 0, loop);
+        for(int i=0; i<loop; i++){
+            block = memory.getBlock(i);
+            ArrayList<Tuple> tuples = block.getTuples();
+            for(Tuple tuple : tuples){
+                if(parseTree.where){
+                    if(parseTree.expressionTree.checkTuple(tuple)) res.add(tuple);
+                }else{
+                    //System.out.println(tuple);
+                    res.add(tuple);
+                }
+            }
+        }
+        return res;
+    }
+
+    //create temporary relation from tuples
+    public static Relation createRelationFromTuples(ArrayList<Tuple> tuples, String name, SchemaManager schemaManager, Relation relation, MainMemory memory){
+        Schema schema = relation.getSchema();
+        if(schemaManager.relationExists(name)) schemaManager.deleteRelation(name);
+        Relation tempRelation = schemaManager.createRelation(name, schema);
+        int tupleNumber = tuples.size(),
+                tuplesPerBlock = schema.getTuplesPerBlock();
+        int tupleBlocks;
+        if(tupleNumber < tuplesPerBlock){
+            tupleBlocks = 1;
+        }else if(tupleNumber > tuplesPerBlock && tupleNumber % tuplesPerBlock == 0){
+            tupleBlocks = tupleNumber / tuplesPerBlock;
+        }else{
+            tupleBlocks = tupleNumber / tuplesPerBlock + 1;
+        }
+
+        int index = 0;
+        while(index < tupleBlocks){
+            int t = Math.min(memory.getMemorySize(), tupleBlocks - index);
+            for(int i = 0; i < t; i++){
+                Block block = memory.getBlock(i);
+                block.clear();
+                for(int j = 0; j< tuplesPerBlock; j++){
+                    if(!tuples.isEmpty()){
+                        Tuple temp = tuples.get(0);
+                        block.setTuple(j, temp);
+                        tuples.remove(temp);
+                    }else{
+                        break;
+                    }
+                }
+            }
+            tempRelation.setBlocks(index,0, t);
+            if(t < memory.getMemorySize()){
+                break;
+            }else{
+                index += memory.getMemorySize();
+            }
+        }
+        return tempRelation;
+    }
+
     //general sorting
-    public static ArrayList<Tuple> onePassSort(Relation relation, MainMemory memory){
+    private static ArrayList<Tuple> onePassSort(Relation relation, MainMemory memory){
         int numOfBlocks = relation.getNumOfBlocks();
         relation.getBlocks(0, 0, numOfBlocks);
         ArrayList<Tuple> tuples = memory.getTuples(0, numOfBlocks);
@@ -13,7 +167,7 @@ public class QueryHelper {
     }
 
     //sorting relation by certain field
-    public static ArrayList<Tuple> onePassSort(Relation relation, String fieldName, MainMemory memory){
+    private static ArrayList<Tuple> onePassSort(Relation relation, MainMemory memory, String fieldName){
         int numOfBlocks = relation.getNumOfBlocks();
         relation.getBlocks(0, 0, numOfBlocks);
         ArrayList<Tuple> tuples = memory.getTuples(0, numOfBlocks);
@@ -23,7 +177,7 @@ public class QueryHelper {
     }
 
     //general main memory sorting
-    public static ArrayList<Tuple> onePassSort(MainMemory memory, int numOfBlocks){
+    private static ArrayList<Tuple> onePassSort(MainMemory memory, int numOfBlocks){
         ArrayList<Tuple> tuples = memory.getTuples(0, numOfBlocks);
         tuples.sort(new TupleComparator());
         clearMainMem(memory);
@@ -31,7 +185,7 @@ public class QueryHelper {
     }
 
     //sorting main memory by certain field
-    public static ArrayList<Tuple> onePassSort(MainMemory memory, String fieldName, int numOfBlocks){
+    private static ArrayList<Tuple> onePassSort(MainMemory memory, String fieldName, int numOfBlocks){
         ArrayList<Tuple> tuples = memory.getTuples(0, numOfBlocks);
         tuples.sort(new TupleComparator(fieldName));
         clearMainMem(memory);
@@ -58,7 +212,7 @@ public class QueryHelper {
         }
     }
 
-    public static ArrayList<Tuple> twoPassSort(Relation relation, MainMemory memory, String fieldName){
+    private static ArrayList<Tuple> twoPassSort(Relation relation, MainMemory memory, String fieldName){
         //phase 1: making sorted sublists
         twoPassHelper(relation, memory, fieldName);
 
@@ -100,62 +254,13 @@ public class QueryHelper {
             }
         }
 
-        for(Tuple tuple : res) System.out.println(tuple);
+        //for(Tuple tuple : res) System.out.println(tuple);
         clearMainMem(memory);
         return res;
     }
 
-    public static Relation distinct(SchemaManager schemaManager, Relation relation, MainMemory memory, String fieldName){
-        Schema schema = relation.getSchema();
-        String name = relation.getRelationName() + "_distinct_" + fieldName;
-        if(schemaManager.relationExists(name)) schemaManager.deleteRelation(name);
-        Relation tempRelation = schemaManager.createRelation(name, schema);
-        ArrayList<Tuple> tuples;
-        if(relation.getNumOfBlocks() <= memory.getMemorySize()){
-            tuples = onePassRemoveDuplicate(relation, memory, fieldName);
-        }else{
-            tuples = twoPassRemoveDuplicate(relation, memory, fieldName);
-        }
 
-        int tupleNumber = tuples.size();
-        int tuplesPerBlock = schema.getTuplesPerBlock();
-        int tupleBlocks = 0;
-        if(tupleNumber < tuplesPerBlock){
-            tupleBlocks = 1;
-        }else if(tupleNumber > tuplesPerBlock && tupleNumber % tuplesPerBlock == 0){
-            tupleBlocks = tupleNumber / tuplesPerBlock;
-        }else{
-            tupleBlocks = tupleNumber / tuplesPerBlock + 1;
-        }
-
-        int index = 0;
-        while(index < tupleBlocks){
-            int t = Math.min(memory.getMemorySize(), tupleBlocks - index);
-            for(int i = 0; i < t; i++){
-                Block block = memory.getBlock(i);
-                block.clear();
-                for(int j = 0; j< tuplesPerBlock; j++){
-                    if(!tuples.isEmpty()){
-                        Tuple temp = tuples.get(0);
-                        block.setTuple(j, temp);
-                        tuples.remove(temp);
-                    }else{
-                        break;
-                    }
-                }
-            }
-            tempRelation.setBlocks(index,0, t);
-            if(t < memory.getMemorySize()){
-                break;
-            }else{
-                index += memory.getMemorySize();
-            }
-        }
-
-        return tempRelation;
-    }
-
-    public static ArrayList<Tuple> onePassRemoveDuplicate(Relation relation, MainMemory memory, String fieldName){
+    private static ArrayList<Tuple> onePassRemoveDuplicate(Relation relation, MainMemory memory, String fieldName){
         ArrayList<Tuple> res = new ArrayList<>();
         HashSet<String> hashSet = new HashSet<>();
         int numOfBlocks = relation.getNumOfBlocks();
@@ -172,7 +277,7 @@ public class QueryHelper {
         return res;
     }
 
-    public static ArrayList<Tuple> twoPassRemoveDuplicate(Relation relation, MainMemory memory, String fieldName){
+    private static ArrayList<Tuple> twoPassRemoveDuplicate(Relation relation, MainMemory memory, String fieldName){
         //phase 1: making sorted sublists
         twoPassHelper(relation, memory, fieldName);
 
@@ -221,19 +326,32 @@ public class QueryHelper {
             }
 
             //the 3rd difference - remove all minimum elements
-            for(int j = 0; j < tuples.size(); ++j){
-                if(!tuples.get(j).isEmpty()) {
-                    if(tuples.get(j).get(0).getField(fieldName).type.equals(minTuple.getField(fieldName).type)){
-                        if(tuples.get(j).get(0).getField(fieldName).type.equals(FieldType.STR20)){
-                            if(tuples.get(j).get(0).getField(fieldName).str.equals(minTuple.getField(fieldName).str))
-                                tuples.get(j).remove(0);
+            for(ArrayList<Tuple> tuple : tuples){
+                if(!tuple.isEmpty()) {
+                    if(tuple.get(0).getField(fieldName).type.equals(minTuple.getField(fieldName).type)){
+                        if(tuple.get(0).getField(fieldName).type.equals(FieldType.STR20)){
+                            if(tuple.get(0).getField(fieldName).str.equals(minTuple.getField(fieldName).str))
+                                tuple.remove(0);
                         }else{
-                            if(tuples.get(j).get(0).getField(fieldName).integer == minTuple.getField(fieldName).integer)
-                                tuples.get(j).remove(0);
+                            if(tuple.get(0).getField(fieldName).integer == minTuple.getField(fieldName).integer)
+                                tuple.remove(0);
                         }
                     }
                 }
             }
+//            for(int j = 0; j < tuples.size(); ++j){
+//                if(!tuples.get(j).isEmpty()) {
+//                    if(tuples.get(j).get(0).getField(fieldName).type.equals(minTuple.getField(fieldName).type)){
+//                        if(tuples.get(j).get(0).getField(fieldName).type.equals(FieldType.STR20)){
+//                            if(tuples.get(j).get(0).getField(fieldName).str.equals(minTuple.getField(fieldName).str))
+//                                tuples.get(j).remove(0);
+//                        }else{
+//                            if(tuples.get(j).get(0).getField(fieldName).integer == minTuple.getField(fieldName).integer)
+//                                tuples.get(j).remove(0);
+//                        }
+//                    }
+//                }
+//            }
         }
 
         //for(Tuple tuple : res) System.out.println(tuple);
