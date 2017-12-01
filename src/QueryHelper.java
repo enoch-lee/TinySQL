@@ -57,6 +57,14 @@ public class QueryHelper {
     public static void project(Relation relation, MainMemory memory, ParseTree parseTree){
         int numOfBlocks = relation.getNumOfBlocks();
         int i = 0;
+        if(parseTree.attributes.get(0).equals("*")){
+            System.out.print(relation.getSchema().getFieldNames());
+        }else{
+            for(String attr : parseTree.attributes){
+                System.out.print(attr + " ");
+            }
+        }
+        System.out.println();
         //System.out.println(relation);
         while(i < numOfBlocks){
             int t = Math.min(memory.getMemorySize(), numOfBlocks - i);
@@ -66,27 +74,27 @@ public class QueryHelper {
                 return;
             }
             projectHelper(relation, memory, parseTree, t);
-            if(t <= memory.getMemorySize()) break;
-            else i += 10;
+            if(t < memory.getMemorySize()) break;
+            else i += memory.getMemorySize();
         }
     }
 
     private static void projectHelper(Relation relation, MainMemory memory, ParseTree parseTree, int memBlocks){
         ArrayList<Tuple> tuples = memory.getTuples(0, memBlocks);
-        if(parseTree.attributes.get(0).equals("*")){
-            System.out.print(relation.getSchema().getFieldNames());
-        }else{
-            for(String attr : parseTree.attributes){
-                System.out.print(attr + " ");
-            }
-        }
-        System.out.println();
         for(Tuple tuple : tuples){
             if(parseTree.attributes.get(0).equals("*")){
                 System.out.println(tuple);
             }else{
                 for(String attr : parseTree.attributes){
-                    if(!tuple.isNull()) System.out.print(tuple.getField(attr) + " ");
+                    if(attr.contains(".") && parseTree.tables.size() == 1) attr = attr.split("\\.")[1];
+                    if(!tuple.isNull()){
+                        //handle NULL case
+                        if(tuple.getField(attr).type.equals(FieldType.INT) && tuple.getField(attr).integer == Integer.MIN_VALUE){
+                            System.out.print("NULL");
+                        }else{
+                            System.out.print(tuple.getField(attr) + " ");
+                        }
+                    }
                 }
                 System.out.println();
             }
@@ -264,7 +272,8 @@ public class QueryHelper {
         ArrayList<Tuple> res = new ArrayList<>();
         HashSet<String> hashSet = new HashSet<>();
         int numOfBlocks = relation.getNumOfBlocks();
-        relation.setBlocks(0, 0, numOfBlocks);
+        //relation.setBlocks(0, 0, numOfBlocks) --> error!!!!!!
+        relation.getBlocks(0, 0, numOfBlocks);
         ArrayList<Tuple> tuples = memory.getTuples(0, numOfBlocks);
         for(Tuple tuple : tuples){
             if(tuple.getField(fieldName).type.equals(FieldType.STR20)){

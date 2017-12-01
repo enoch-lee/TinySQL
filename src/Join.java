@@ -8,18 +8,15 @@ public class Join {
         Relation new_relation;
         ArrayList<Tuple> tuples;
 
-        //System.out.println("CrossJoin...\n");
         Relation TableOne = schema_manager.getRelation(tableOne);
         Relation TableTwo = schema_manager.getRelation(tableTwo);
         int sizeOne = TableOne.getNumOfBlocks();
         int sizeTwo = TableTwo.getNumOfBlocks();
 
-
         Relation smallRelation;
         if (sizeOne < sizeTwo) smallRelation = TableOne;
         else smallRelation = TableTwo;
 
-        //One pass...
         if (smallRelation.getNumOfBlocks() < memory.getMemorySize()-1) {
             tuples = onePassJoin(schema_manager, memory, tableOne, tableTwo);
         }else{
@@ -28,49 +25,12 @@ public class Join {
 
         Schema schema = combineSchema(schema_manager, tableOne, tableTwo);
         String name = tableOne+"_cross_"+tableTwo;
-
         if(schema_manager.relationExists(name)){
             schema_manager.deleteRelation(name);
         }
         new_relation = schema_manager.createRelation(name, schema);
+        return QueryHelper.createRelationFromTuples(tuples, name, schema_manager, new_relation, memory);
 
-        int tupleNumber = tuples.size();
-        int tuplesPerBlock = schema.getTuplesPerBlock();
-        int tupleBlocks;
-        if(tupleNumber<tuplesPerBlock){
-            tupleBlocks = 1;
-        }else if(tupleNumber>tuplesPerBlock && tupleNumber%tuplesPerBlock==0){
-            tupleBlocks = tupleNumber/tuplesPerBlock;
-        }else{
-            tupleBlocks = tupleNumber/tuplesPerBlock +1;
-        }
-
-        int sortedBlocks = 0;
-        //sortedBlocks < memory.getMemorySize() --> error!!!!
-        while(sortedBlocks < tupleBlocks){
-            int t = Math.min(memory.getMemorySize(), tupleBlocks - sortedBlocks);
-            for(int i=0; i<t; i++){
-                Block block = memory.getBlock(i);
-                block.clear();
-                for(int j=0; j<tuplesPerBlock; j++){
-                    if(!tuples.isEmpty()){
-                        Tuple temp = tuples.get(0);
-                        block.setTuple(j, temp);
-                        tuples.remove(temp);
-                    }else{
-                        break;
-                    }
-                }
-            }
-            new_relation.setBlocks(sortedBlocks,0, t);
-            if(t < memory.getMemorySize()){
-                break;
-            }else{
-                sortedBlocks += memory.getMemorySize();
-            }
-
-        }
-        return new_relation;
     }
 
     private static ArrayList<Tuple> onePassJoin(SchemaManager schema_manager, MainMemory memory, String tableOne, String tableTwo){
@@ -216,7 +176,7 @@ public class Join {
 
 
 
-    private static Relation naturalJoin(SchemaManager schemaManager, MainMemory memory, String tableOne, String tableTwo, String JoinOn){
+    public static Relation naturalJoin(SchemaManager schemaManager, MainMemory memory, String tableOne, String tableTwo, String JoinOn){
         ArrayList<Tuple> tuples;
         Relation r1 = schemaManager.getRelation(tableOne);
         Relation r2 = schemaManager.getRelation(tableTwo);
@@ -238,43 +198,11 @@ public class Join {
         Schema schema = combineSchema(schemaManager, tableOne, tableTwo);
         Relation tempRelation = schemaManager.createRelation(name, schema);
 
-        int tupleNumber = tuples.size(), tuplesPerBlock = schema.getTuplesPerBlock(), tupleBlocks = 0;
-        if(tupleNumber < tuplesPerBlock){
-            tupleBlocks = 1;
-        }else if(tupleNumber > tuplesPerBlock && tupleNumber % tuplesPerBlock == 0){
-            tupleBlocks = tupleNumber / tuplesPerBlock;
-        }else{
-            tupleBlocks = tupleNumber / tuplesPerBlock + 1;
-        }
+        return QueryHelper.createRelationFromTuples(tuples, name, schemaManager, tempRelation, memory);
 
-        int index = 0;
-        while(index < tupleBlocks){
-            int t = Math.min(memory.getMemorySize(), tupleBlocks - index);
-            for(int i = 0; i < t; i++){
-                Block block = memory.getBlock(i);
-                block.clear();
-                for(int j = 0; j< tuplesPerBlock; j++){
-                    if(!tuples.isEmpty()){
-                        Tuple temp = tuples.get(0);
-                        block.setTuple(j, temp);
-                        tuples.remove(temp);
-                    }else{
-                        break;
-                    }
-                }
-            }
-            tempRelation.setBlocks(index,0, t);
-            if(t < memory.getMemorySize()){
-                break;
-            }else{
-                index += memory.getMemorySize();
-            }
-        }
-
-        return tempRelation;
     }
 
-    public static ArrayList<Tuple> onePassNaturalJoin(SchemaManager schemaManager, MainMemory memory, String tableOne, String tableTwo, String JoinOn){
+    private static ArrayList<Tuple> onePassNaturalJoin(SchemaManager schemaManager, MainMemory memory, String tableOne, String tableTwo, String JoinOn){
         ArrayList<Tuple> tuples = new ArrayList<Tuple>();
         Relation TableOne = schemaManager.getRelation(tableOne);
         Relation TableTwo = schemaManager.getRelation(tableTwo);
@@ -333,7 +261,7 @@ public class Join {
         return tuples;
     }
 
-    public static ArrayList<Tuple> twoPassNaturalJoin(SchemaManager schemaManager, MainMemory memory, String tableOne, String tableTwo, String fieldName){
+    private static ArrayList<Tuple> twoPassNaturalJoin(SchemaManager schemaManager, MainMemory memory, String tableOne, String tableTwo, String fieldName){
         //phase 1: making sorted sublists
         Relation t1 = schemaManager.getRelation(tableOne);
         Relation t2 = schemaManager.getRelation(tableTwo);

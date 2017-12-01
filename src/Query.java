@@ -51,7 +51,6 @@ public class Query {
     private static void selectQuery(String sql){
         Statement stmt = parser.selectStatement(sql);
         ParseTree parseTree = stmt.parseTree;
-
         if(parseTree.tables.size() == 1){
             selectSingleRelation(parseTree);
         }else{
@@ -87,6 +86,7 @@ public class Query {
 
         //projection
         QueryHelper.project(relation, memory, parseTree);
+        QueryHelper.clearMainMem(memory);
 
         //delete all intermediate relations
         if(tempRelations.isEmpty()) return;
@@ -97,12 +97,47 @@ public class Query {
 
 
     private static void selectMultiRelation(ParseTree parseTree){
-        Relation relation = Join.crossProduct(schemaMG, memory, parseTree.tables.get(0), parseTree.tables.get(1));
+        String t1 = parseTree.tables.get(0);
+        String t2 = parseTree.tables.get(1);
+        Relation r1 = schemaMG.getRelation(t1);
+        Relation r2 = schemaMG.getRelation(t2);
+        Relation relation;
+        ArrayList<String> tempRelations = new ArrayList<>();
+
+        //if DISTINCT
+        if(parseTree.distinct){
+            r1 = QueryHelper.distinct(schemaMG, r1, memory, "sid");
+            r2 = QueryHelper.distinct(schemaMG, r2, memory, "sid");
+        }
+
+        //selection
+        if(parseTree.where){
+            relation = Join.naturalJoin(schemaMG, memory, t1, t2, "sid");
+            //System.out.println(relation);
+            //relation = QueryHelper.select(schemaMG, relation, memory, parseTree);
+        }else{
+            relation = Join.crossProduct(schemaMG, memory, t1, t2);
+        }
+        QueryHelper.clearMainMem(memory);
+        tempRelations.add(relation.getRelationName());
+
+        //if ORDER BY
+        if(parseTree.order){
+            relation = QueryHelper.sort(schemaMG, relation, memory, parseTree.orderBy);
+            QueryHelper.clearMainMem(memory);
+            tempRelations.add(relation.getRelationName());
+        }
+
         //projection
         QueryHelper.project(relation, memory, parseTree);
         schemaMG.deleteRelation(relation.getRelationName());
-    }
 
+        //delete all intermediate relations
+        if(tempRelations.isEmpty()) return;
+        for(String temp : tempRelations){
+            if(schemaMG.relationExists(temp)) schemaMG.deleteRelation(temp);
+        }
+    }
 
 
     private static void dropQuery(String sql){
@@ -198,49 +233,54 @@ public class Query {
             relation.setBlock(0, memBlockIndex);
         }
     }
-    public static Relation crossJoin(String tableOne, String tableTwo){
-        return Join.crossProduct(schemaMG, memory, tableOne, tableTwo);
-    }
-    public static ArrayList<Tuple> onePassNaturalJoin(String tableOne, String tableTwo, String fieldName){
-        return Join.onePassNaturalJoin(schemaMG, memory, tableOne, tableTwo, fieldName);
-    }
-    public static ArrayList<Tuple> twoPassNaturalJoin(String tableOne, String tableTwo, String fieldName){
-        return Join.twoPassNaturalJoin(schemaMG, memory, tableOne, tableTwo, fieldName);
-    }
 
     public static void main(String[] args) throws IOException {
         Query.reset();
         Query.parseQuery("CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, \"A\")");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 100, 100, 98, \"C\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (12, 99, 100, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (12, 100, 100, 98, \"C\")");
         Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 100, 50, 90, \"E\")");
         Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 100, 100, 100, \"A\")");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (9, 100, 100, 66, \"A\")");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (6, 50, 50, 61, \"D\")");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (7, 0, 0, 0, \"E\")");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (8, 0, 0, 0, \"E\")");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (5, 50, 50, 59, \"D\")");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (10, 50, 50, 56, \"D\")");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (11, 0, 0, 0, \"E\")");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (12, 100, 100, 66, \"A\"");
-        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (20, 100, 100, 66, \"A\"");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 100, 100, 66, \"A\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 50, 50, 61, \"D\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 0, 0, 0, \"E\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 0, 0, 0, \"E\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 50, 50, 59, \"D\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 50, 50, 56, \"D\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 0, 0, 0, \"E\")");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (7, 100, 100, 66, \"A\"");
+        Query.parseQuery("INSERT INTO course (sid, homework, project, exam, grade) VALUES (8, 100, 100, 66, \"A\"");
 //        Query.parseQuery("SELECT sid, grade FROM course WHERE sid > 5 ORDER BY grade");
 
         Query.parseQuery("CREATE TABLE course2 (sid INT, exam INT, grade STR20)");
-        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (1, 100, \"A\")");
-        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (1, 101, \"A\")");
-        Query.parseQuery("SELECT * FROM course, course2");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (12, 25, \"E\")");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
-//        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (1, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (3, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (12, 101, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (12, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 100, \"A\")");
+        Query.parseQuery("INSERT INTO course2 (sid, exam, grade) VALUES (99, 25, \"E\")");
+
+        //Query.parseQuery("SELECT DISTINCT course.sid, course2.sid FROM course, course2 where course.sid = course2.sid");
+          Query.parseQuery("SELECT course.sid FROM course");
+        //String test = "course.sid";
 //        Relation relation = Query.crossJoin("course", "course2");
 //        ArrayList<Tuple> tuples = Query.twoPassNaturalJoin("course", "course2", "sid");
 //        for(Tuple tuple : tuples) System.out.println(tuple);
