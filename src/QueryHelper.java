@@ -105,6 +105,56 @@ public class QueryHelper {
         return res;
     }
 
+    public static Relation distinct(SchemaManager schemaManager, Relation relation, MainMemory memory, String fieldName){
+        Schema schema = relation.getSchema();
+        String name = relation.getRelationName() + "_distinct_" + fieldName;
+        if(schemaManager.relationExists(name)) schemaManager.deleteRelation(name);
+        Relation tempRelation = schemaManager.createRelation(name, schema);
+        ArrayList<Tuple> tuples;
+        if(relation.getNumOfBlocks() <= memory.getMemorySize()){
+            tuples = onePassRemoveDuplicate(relation, memory, fieldName);
+        }else{
+            tuples = twoPassRemoveDuplicate(relation, memory, fieldName);
+        }
+
+        int tupleNumber = tuples.size();
+        int tuplesPerBlock = schema.getTuplesPerBlock();
+        int tupleBlocks = 0;
+        if(tupleNumber < tuplesPerBlock){
+            tupleBlocks = 1;
+        }else if(tupleNumber > tuplesPerBlock && tupleNumber % tuplesPerBlock == 0){
+            tupleBlocks = tupleNumber / tuplesPerBlock;
+        }else{
+            tupleBlocks = tupleNumber / tuplesPerBlock + 1;
+        }
+
+        int index = 0;
+        while(index < tupleBlocks){
+            int t = Math.min(memory.getMemorySize(), tupleBlocks - index);
+            for(int i = 0; i < t; i++){
+                Block block = memory.getBlock(i);
+                block.clear();
+                for(int j = 0; j< tuplesPerBlock; j++){
+                    if(!tuples.isEmpty()){
+                        Tuple temp = tuples.get(0);
+                        block.setTuple(j, temp);
+                        tuples.remove(temp);
+                    }else{
+                        break;
+                    }
+                }
+            }
+            tempRelation.setBlocks(index,0, t);
+            if(t < memory.getMemorySize()){
+                break;
+            }else{
+                index += memory.getMemorySize();
+            }
+        }
+
+        return tempRelation;
+    }
+
     public static ArrayList<Tuple> onePassRemoveDuplicate(Relation relation, MainMemory memory, String fieldName){
         ArrayList<Tuple> res = new ArrayList<>();
         HashSet<String> hashSet = new HashSet<>();
@@ -186,7 +236,7 @@ public class QueryHelper {
             }
         }
 
-        for(Tuple tuple : res) System.out.println(tuple);
+        //for(Tuple tuple : res) System.out.println(tuple);
         clearMainMem(memory);
         return res;
     }

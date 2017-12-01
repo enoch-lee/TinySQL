@@ -4,7 +4,7 @@ import java.util.Collections;
 
 public class Join {
     @SuppressWarnings("Duplicates")
-    public static Relation crossJoin(SchemaManager schema_manager, MainMemory memory, String tableOne, String tableTwo) {
+    public static Relation crossProduct(SchemaManager schema_manager, MainMemory memory, String tableOne, String tableTwo) {
         Relation new_relation;
         ArrayList<Tuple> tuples;
 
@@ -192,10 +192,7 @@ public class Join {
         Relation TableTwo = schema_manager.getRelation(tableTwo);
         int sizeOne = TableOne.getNumOfBlocks();
         int sizeTwo = TableTwo.getNumOfBlocks();
-
-
         Schema newSchema = combineSchema(schema_manager, tableOne, tableTwo);
-
         String newName="TempTable_"+tableOne+"_crossJoin_"+tableTwo;
         if(schema_manager.relationExists(newName)){
             schema_manager.deleteRelation(newName);
@@ -219,25 +216,61 @@ public class Join {
     }
 
     private static Relation naturalJoin(SchemaManager schemaManager, MainMemory memory, String tableOne, String tableTwo, String JoinOn){
-        System.out.println("Natural Join...\n");
-        Relation new_relation;
         ArrayList<Tuple> tuples;
-
-        Relation TableOne = schemaManager.getRelation(tableOne);
-        Relation TableTwo = schemaManager.getRelation(tableTwo);
-        int sizeOne = TableOne.getNumOfBlocks();
-        int sizeTwo = TableTwo.getNumOfBlocks();
+        Relation r1 = schemaManager.getRelation(tableOne);
+        Relation r2 = schemaManager.getRelation(tableTwo);
+        int sizeOne = r1.getNumOfBlocks();
+        int sizeTwo = r2.getNumOfBlocks();
 
         Relation smallRelation;
-        if (sizeOne < sizeTwo) smallRelation = TableOne;
-        else smallRelation = TableTwo;
+        if (sizeOne < sizeTwo) smallRelation = r1;
+        else smallRelation = r2;
 
-        if (smallRelation.getNumOfBlocks() < memory.getMemorySize()-1) {
+        if (smallRelation.getNumOfBlocks() < memory.getMemorySize()) {
             tuples = onePassNaturalJoin(schemaManager, memory, tableOne, tableTwo, JoinOn);
         }else{
             tuples = twoPassNaturalJoin(schemaManager, memory, tableOne, tableTwo, JoinOn);
         }
-        return null;
+
+        String name = r1.getRelationName() + "_naturalJoin_" + r2.getRelationName();
+        if(schemaManager.relationExists(name)) schemaManager.deleteRelation(name);
+        Schema schema = combineSchema(schemaManager, tableOne, tableTwo);
+        Relation tempRelation = schemaManager.createRelation(name, schema);
+
+        int tupleNumber = tuples.size(), tuplesPerBlock = schema.getTuplesPerBlock(), tupleBlocks = 0;
+        if(tupleNumber < tuplesPerBlock){
+            tupleBlocks = 1;
+        }else if(tupleNumber > tuplesPerBlock && tupleNumber % tuplesPerBlock == 0){
+            tupleBlocks = tupleNumber / tuplesPerBlock;
+        }else{
+            tupleBlocks = tupleNumber / tuplesPerBlock + 1;
+        }
+
+        int index = 0;
+        while(index < tupleBlocks){
+            int t = Math.min(memory.getMemorySize(), tupleBlocks - index);
+            for(int i = 0; i < t; i++){
+                Block block = memory.getBlock(i);
+                block.clear();
+                for(int j = 0; j< tuplesPerBlock; j++){
+                    if(!tuples.isEmpty()){
+                        Tuple temp = tuples.get(0);
+                        block.setTuple(j, temp);
+                        tuples.remove(temp);
+                    }else{
+                        break;
+                    }
+                }
+            }
+            tempRelation.setBlocks(index,0, t);
+            if(t < memory.getMemorySize()){
+                break;
+            }else{
+                index += memory.getMemorySize();
+            }
+        }
+
+        return tempRelation;
     }
 
     public static ArrayList<Tuple> onePassNaturalJoin(SchemaManager schemaManager, MainMemory memory, String tableOne, String tableTwo, String JoinOn){
