@@ -1,6 +1,4739 @@
-********START********
-SELECT DISTINCT COURSE.GRADE, COURSE2.GRADE FROM COURSE, COURSE2 WHERE COURSE.SID = COURSE2.SID AND COURSE.EXAM > COURSE2.EXAM OR COURSE.GRADE = "A" AND COURSE2.GRADE = "A" ORDER BY COURSE.EXAM
-********START********
-SELECT DISTINCT COURSE.GRADE, COURSE2.GRADE FROM COURSE, COURSE2 WHERE COURSE.SID = COURSE2.SID AND COURSE.EXAM > COURSE2.EXAM OR COURSE.GRADE = "A" AND COURSE2.GRADE = "A" ORDER BY COURSE.EXAM
-********START********
-SELECT DISTINCT COURSE.GRADE, COURSE2.GRADE FROM COURSE, COURSE2 WHERE COURSE.SID = COURSE2.SID AND COURSE.EXAM > COURSE2.EXAM OR COURSE.GRADE = "A" AND COURSE2.GRADE = "A" ORDER BY COURSE.EXAM
+CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, NULL, 100, 100, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, grade, exam, project, homework) VALUES (3, "E", 100, 100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+INSERT INTO course (sid, homework, project, exam, grade) SELECT * FROM course
+DiskIOs: 9
+DiskTimer: 650.41
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 6
+DiskTimer: 394.63
+
+DELETE FROM course WHERE grade = "E"
+DiskIOs: 27
+DiskTimer: 1802.4100000000003
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (4, 99, 100, 100, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+4 99 100 100 "B" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+DELETE FROM course
+DiskIOs: 12
+DiskTimer: 831.78
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+DROP TABLE course
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 100, 98, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 69, 64, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (15, 100, 50, 90, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (15, 100, 99, 100, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (17, 100, 100, 100, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, 100, 100, 99, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (4, 100, 100, 97, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (5, 100, 100, 66, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (6, 100, 100, 65, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (7, 100, 50, 73, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (8, 50, 50, 62, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (9, 50, 50, 61, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (10, 50, 70, 70, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (11, 50, 50, 59, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (12, 0, 70, 58, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (13, 0, 50, 77, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (14, 50, 50, 56, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (17, 100, 100, 100, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+3 100 100 98 "C" 
+3 100 69 64 "C" 
+15 100 50 90 "E" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+2 100 100 99 "B" 
+4 100 100 97 "D" 
+5 100 100 66 "A" 
+6 100 100 65 "B" 
+7 100 50 73 "C" 
+8 50 50 62 "C" 
+9 50 50 61 "D" 
+10 50 70 70 "C" 
+11 50 50 59 "D" 
+12 0 70 58 "C" 
+13 0 50 77 "C" 
+14 50 50 56 "D" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 58
+DiskTimer: 3775.78
+
+SELECT sid, grade FROM course
+------------RESULT START------------
+sid grade 1 "A" 
+3 "C" 
+3 "C" 
+15 "E" 
+15 "E" 
+17 "A" 
+2 "B" 
+4 "D" 
+5 "A" 
+6 "B" 
+7 "C" 
+8 "C" 
+9 "D" 
+10 "C" 
+11 "D" 
+12 "C" 
+13 "C" 
+14 "D" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+17 "A" 
+-------------RESULT END-------------
+DiskIOs: 58
+DiskTimer: 3775.78
+
+SELECT sid, course.grade FROM course
+------------RESULT START------------
+sid course.grade 1 "A" 
+3 "C" 
+3 "C" 
+15 "E" 
+15 "E" 
+17 "A" 
+2 "B" 
+4 "D" 
+5 "A" 
+6 "B" 
+7 "C" 
+8 "C" 
+9 "D" 
+10 "C" 
+11 "D" 
+12 "C" 
+13 "C" 
+14 "D" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+17 "A" 
+-------------RESULT END-------------
+DiskIOs: 58
+DiskTimer: 3775.78
+
+SELECT DISTINCT grade FROM course
+------------RESULT START------------
+grade "A" 
+"B" 
+"C" 
+"D" 
+"E" 
+-------------RESULT END-------------
+DiskIOs: 184
+DiskTimer: 12541.35999999996
+
+SELECT DISTINCT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 100 100 99 "B" 
+3 100 69 64 "C" 
+3 100 100 98 "C" 
+4 100 100 97 "D" 
+5 100 100 66 "A" 
+6 100 100 65 "B" 
+7 100 50 73 "C" 
+8 50 50 62 "C" 
+9 50 50 61 "D" 
+10 50 70 70 "C" 
+11 50 50 59 "D" 
+12 0 70 58 "C" 
+13 0 50 77 "C" 
+14 50 50 56 "D" 
+15 100 50 90 "E" 
+15 100 99 100 "E" 
+16 0 0 0 "E" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 212
+DiskTimer: 14354.619999999959
+
+SELECT * FROM course ORDER BY exam
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+14 50 50 56 "D" 
+12 0 70 58 "C" 
+11 50 50 59 "D" 
+9 50 50 61 "D" 
+8 50 50 62 "C" 
+3 100 69 64 "C" 
+6 100 100 65 "B" 
+5 100 100 66 "A" 
+10 50 70 70 "C" 
+7 100 50 73 "C" 
+13 0 50 77 "C" 
+15 100 50 90 "E" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 290
+DiskTimer: 19431.65999999996
+
+SELECT * FROM course WHERE exam = 100
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 66
+DiskTimer: 4309.04
+
+SELECT * FROM course WHERE grade = "A"
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+5 100 100 66 "A" 
+1 99 100 100 "A" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 66
+DiskTimer: 4309.04
+
+SELECT * FROM course WHERE exam = 100 AND project = 100
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 64
+DiskTimer: 4181.04
+
+SELECT * FROM course WHERE exam = 100 OR exam = 99
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 68
+DiskTimer: 4437.04
+
+SELECT * FROM course WHERE NOT exam = 0
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+3 100 69 64 "C" 
+6 100 100 65 "B" 
+5 100 100 66 "A" 
+15 100 50 90 "E" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+14 50 50 56 "D" 
+12 0 70 58 "C" 
+11 50 50 59 "D" 
+9 50 50 61 "D" 
+8 50 50 62 "C" 
+10 50 70 70 "C" 
+7 100 50 73 "C" 
+13 0 50 77 "C" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 96
+DiskTimer: 6250.3
+
+SELECT * FROM course WHERE exam > 70
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+15 100 50 90 "E" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+7 100 50 73 "C" 
+13 0 50 77 "C" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 78
+DiskTimer: 5077.04
+
+SELECT * FROM course WHERE exam = 100 OR homework = 100 AND project = 100
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+6 100 100 65 "B" 
+5 100 100 66 "A" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 74
+DiskTimer: 4821.04
+
+SELECT * FROM course WHERE exam = 100 OR homework = 100 AND project = 100
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+6 100 100 65 "B" 
+5 100 100 66 "A" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 74
+DiskTimer: 4821.04
+
+SELECT * FROM course WHERE exam + homework = 200
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 64
+DiskTimer: 4181.04
+
+SELECT * FROM course WHERE ( exam * 30 + homework * 20 + project * 50 ) / 100 = 100
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 62
+DiskTimer: 4053.0400000000004
+
+SELECT * FROM course WHERE grade = "C" AND exam > 70 OR project > 70 AND NOT ( exam * 30 + homework * 20 + project * 50 ) / 100 < 60
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+6 100 100 65 "B" 
+5 100 100 66 "A" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+7 100 50 73 "C" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 78
+DiskTimer: 5077.04
+
+CREATE TABLE course2 (sid INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course2 (sid, exam, grade) VALUES (1, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course2 (sid, exam, grade) VALUES (16, 25, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (17, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course, course2
+------------RESULT START------------
+[course.sid, course.homework, course.project, course.exam, course.grade, course2.sid, course2.exam, course2.grade]
+3 100 69 64 "C" 1 100 "A" 
+3 100 69 64 "C" 16 25 "E" 
+3 100 69 64 "C" 17 0 "A" 
+6 100 100 65 "B" 1 100 "A" 
+6 100 100 65 "B" 16 25 "E" 
+6 100 100 65 "B" 17 0 "A" 
+5 100 100 66 "A" 1 100 "A" 
+5 100 100 66 "A" 16 25 "E" 
+5 100 100 66 "A" 17 0 "A" 
+15 100 50 90 "E" 1 100 "A" 
+15 100 50 90 "E" 16 25 "E" 
+15 100 50 90 "E" 17 0 "A" 
+4 100 100 97 "D" 1 100 "A" 
+4 100 100 97 "D" 16 25 "E" 
+4 100 100 97 "D" 17 0 "A" 
+3 100 100 98 "C" 1 100 "A" 
+3 100 100 98 "C" 16 25 "E" 
+3 100 100 98 "C" 17 0 "A" 
+2 100 100 99 "B" 1 100 "A" 
+2 100 100 99 "B" 16 25 "E" 
+2 100 100 99 "B" 17 0 "A" 
+1 99 100 100 "A" 1 100 "A" 
+1 99 100 100 "A" 16 25 "E" 
+1 99 100 100 "A" 17 0 "A" 
+15 100 99 100 "E" 1 100 "A" 
+15 100 99 100 "E" 16 25 "E" 
+15 100 99 100 "E" 17 0 "A" 
+17 100 100 100 "A" 1 100 "A" 
+17 100 100 100 "A" 16 25 "E" 
+17 100 100 100 "A" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+14 50 50 56 "D" 1 100 "A" 
+14 50 50 56 "D" 16 25 "E" 
+14 50 50 56 "D" 17 0 "A" 
+12 0 70 58 "C" 1 100 "A" 
+12 0 70 58 "C" 16 25 "E" 
+12 0 70 58 "C" 17 0 "A" 
+11 50 50 59 "D" 1 100 "A" 
+11 50 50 59 "D" 16 25 "E" 
+11 50 50 59 "D" 17 0 "A" 
+9 50 50 61 "D" 1 100 "A" 
+9 50 50 61 "D" 16 25 "E" 
+9 50 50 61 "D" 17 0 "A" 
+8 50 50 62 "C" 1 100 "A" 
+8 50 50 62 "C" 16 25 "E" 
+8 50 50 62 "C" 17 0 "A" 
+10 50 70 70 "C" 1 100 "A" 
+10 50 70 70 "C" 16 25 "E" 
+10 50 70 70 "C" 17 0 "A" 
+7 100 50 73 "C" 1 100 "A" 
+7 100 50 73 "C" 16 25 "E" 
+7 100 50 73 "C" 17 0 "A" 
+13 0 50 77 "C" 1 100 "A" 
+13 0 50 77 "C" 16 25 "E" 
+13 0 50 77 "C" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+17 100 100 100 "A" 1 100 "A" 
+17 100 100 100 "A" 16 25 "E" 
+17 100 100 100 "A" 17 0 "A" 
+-------------RESULT END-------------
+DiskIOs: 408
+DiskTimer: 27121.850000000013
+
+INSERT INTO course2 (sid, exam, grade) VALUES (2, 99, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (3, 98, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (4, 97, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (5, 66, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (6, 65, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT course.sid, course.grade, course2.grade FROM course, course2 WHERE course.sid = course2.sid
+------------RESULT START------------
+course.sid course.grade course2.grade 1 "A" "A" 
+2 "B" "B" 
+3 "C" "C" 
+3 "C" "C" 
+4 "D" "D" 
+5 "A" "A" 
+6 "B" "B" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+17 "A" "A" 
+17 "A" "A" 
+-------------RESULT END-------------
+DiskIOs: 402
+DiskTimer: 26854.779999999955
+
+SELECT DISTINCT course.grade, course2.grade FROM course, course2 WHERE course.sid = course2.sid
+------------RESULT START------------
+course.grade course2.grade "A" "A" 
+"B" "B" 
+"C" "C" 
+"D" "D" 
+"E" "E" 
+-------------RESULT END-------------
+DiskIOs: 422
+DiskTimer: 28634.390000000003
+
+SELECT * FROM course, course2 WHERE course.sid = course2.sid ORDER BY course.exam
+------------RESULT START------------
+[course.sid, course.homework, course.project, course.exam, course.grade, course2.sid, course2.exam, course2.grade]
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+3 100 69 64 "C" 3 98 "C" 
+6 100 100 65 "B" 6 65 "B" 
+5 100 100 66 "A" 5 66 "A" 
+4 100 100 97 "D" 4 97 "D" 
+3 100 100 98 "C" 3 98 "C" 
+2 100 100 99 "B" 2 99 "B" 
+1 99 100 100 "A" 1 100 "A" 
+17 100 100 100 "A" 17 0 "A" 
+17 100 100 100 "A" 17 0 "A" 
+-------------RESULT END-------------
+DiskIOs: 594
+DiskTimer: 39812.46999999994
+
+SELECT * FROM course, course2 WHERE course.sid = course2.sid AND course.exam = 100 AND course2.exam = 100
+------------RESULT START------------
+[course.sid, course.homework, course.project, course.exam, course.grade, course2.sid, course2.exam, course2.grade]
+1 99 100 100 "A" 1 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 308
+DiskTimer: 20753.739999999947
+
+SELECT * FROM course, course2 WHERE course.sid = course2.sid AND course.exam = 100 OR course2.exam = 100
+------------RESULT START------------
+[course.sid, course.homework, course.project, course.exam, course.grade, course2.sid, course2.exam, course2.grade]
+1 99 100 100 "A" 1 100 "A" 
+17 100 100 100 "A" 17 0 "A" 
+17 100 100 100 "A" 17 0 "A" 
+-------------RESULT END-------------
+DiskIOs: 312
+DiskTimer: 21009.739999999947
+
+SELECT * FROM course, course2 WHERE course.sid = course2.sid AND course.exam > course2.exam
+------------RESULT START------------
+[course.sid, course.homework, course.project, course.exam, course.grade, course2.sid, course2.exam, course2.grade]
+17 100 100 100 "A" 17 0 "A" 
+17 100 100 100 "A" 17 0 "A" 
+-------------RESULT END-------------
+DiskIOs: 310
+DiskTimer: 20881.739999999947
+
+SELECT * FROM course, course2 WHERE course.sid = course2.sid AND course.exam > course2.exam AND course.homework = 100
+------------RESULT START------------
+[course.sid, course.homework, course.project, course.exam, course.grade, course2.sid, course2.exam, course2.grade]
+17 100 100 100 "A" 17 0 "A" 
+17 100 100 100 "A" 17 0 "A" 
+-------------RESULT END-------------
+DiskIOs: 310
+DiskTimer: 20881.739999999947
+
+SELECT * FROM course, course2 WHERE course.sid = course2.sid AND course.exam > course2.exam OR course.homework = 100
+------------RESULT START------------
+[course.sid, course.homework, course.project, course.exam, course.grade, course2.sid, course2.exam, course2.grade]
+2 100 100 99 "B" 2 99 "B" 
+3 100 69 64 "C" 3 98 "C" 
+3 100 100 98 "C" 3 98 "C" 
+4 100 100 97 "D" 4 97 "D" 
+5 100 100 66 "A" 5 66 "A" 
+6 100 100 65 "B" 6 65 "B" 
+17 100 100 100 "A" 17 0 "A" 
+17 100 100 100 "A" 17 0 "A" 
+-------------RESULT END-------------
+DiskIOs: 322
+DiskTimer: 21649.739999999947
+
+SELECT DISTINCT course.grade, course2.grade FROM course, course2 WHERE course.sid = course2.sid AND course.exam > course2.exam OR course.grade = "A" AND course2.grade = "A" ORDER BY course.exam
+------------RESULT START------------
+course.grade course2.grade "A" "A" 
+-------------RESULT END-------------
+DiskIOs: 416
+DiskTimer: 28271.650000000005
+
+DROP TABLE course
+DiskIOs: 0
+DiskTimer: 0.0
+
+DROP TABLE course2
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE r (a INT, b INT)
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE s (b INT, c INT)
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE t (a INT, c INT)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO r (a, b) VALUES (0, 0)
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO r (a, b) VALUES (1, 1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (1, 1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (2, 2)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (3, 3)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (0, 0)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (1, 1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (2, 2)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO r (a, b) VALUES (100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (0, 0)
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO s (b, c) VALUES (2, 2)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (3, 3)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (0, 0)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (0, 0)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (1, 1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (1, 1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (2, 2)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (2, 2)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (3, 3)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (3, 3)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (3, 3)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO s (b, c) VALUES (101, 101)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (0, 0)
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO t (a, c) VALUES (1, 1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (2, 2)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (0, 0)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (1, 1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (1, 1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (2, 2)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (3, 3)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t (a, c) VALUES (102, 102)
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM r, s, t WHERE r.a = t.a AND r.b = s.b AND s.c = t.c
+------------RESULT START------------
+[r.a, r.b, t.a, t.c, s.b, s.c]
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+0 0 0 0 0 0 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+2 2 2 2 2 2 
+1 1 1 1 1 1 
+1 1 1 1 1 1 
+2 2 2 2 2 2 
+2 2 2 2 2 2 
+2 2 2 2 2 2 
+2 2 2 2 2 2 
+2 2 2 2 2 2 
+2 2 2 2 2 2 
+2 2 2 2 2 2 
+2 2 2 2 2 2 
+2 2 2 2 2 2 
+3 3 3 3 3 3 
+2 2 2 2 2 2 
+2 2 2 2 2 2 
+3 3 3 3 3 3 
+3 3 3 3 3 3 
+3 3 3 3 3 3 
+-------------RESULT END-------------
+DiskIOs: 1751
+DiskTimer: 115221.1100000002
+
+DROP TABLE r
+DiskIOs: 0
+DiskTimer: 0.0
+
+DROP TABLE s
+DiskIOs: 0
+DiskTimer: 0.0
+
+DROP TABLE t
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE t1 (c INT)
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE t2 (c INT)
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE t3 (c INT)
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE t4 (c INT)
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE t5 (c INT)
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE t6 (c INT)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO t1 (c) VALUES (0)
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO t1 (c) VALUES (1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t1 (c) VALUES (2)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t1 (c) VALUES (3)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t1 (c) VALUES (4)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t2 (c) VALUES (0)
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO t2 (c) VALUES (1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t2 (c) VALUES (2)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t2 (c) VALUES (3)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t3 (c) VALUES (0)
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO t3 (c) VALUES (1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t3 (c) VALUES (2)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t3 (c) VALUES (3)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t4 (c) VALUES (0)
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO t4 (c) VALUES (1)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t5 (c) VALUES (0)
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO t5 (c) VALUES (0)
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO t6 (c) VALUES (0)
+DiskIOs: 1
+DiskTimer: 74.63
+
+SELECT * FROM t1, t2, t3, t4, t5, t6
+------------RESULT START------------
+[t1.c, t2.c, t3.c, t4.c, t5.c, t6.c]
+0 0 0 0 0 0 
+1 0 0 0 0 0 
+0 0 0 0 0 0 
+1 0 0 0 0 0 
+0 0 0 1 0 0 
+1 0 0 1 0 0 
+0 0 0 1 0 0 
+1 0 0 1 0 0 
+2 0 0 0 0 0 
+3 0 0 0 0 0 
+2 0 0 0 0 0 
+3 0 0 0 0 0 
+2 0 0 1 0 0 
+3 0 0 1 0 0 
+2 0 0 1 0 0 
+3 0 0 1 0 0 
+0 0 1 0 0 0 
+1 0 1 0 0 0 
+0 0 1 0 0 0 
+1 0 1 0 0 0 
+0 0 1 1 0 0 
+1 0 1 1 0 0 
+0 0 1 1 0 0 
+1 0 1 1 0 0 
+2 0 1 0 0 0 
+3 0 1 0 0 0 
+2 0 1 0 0 0 
+3 0 1 0 0 0 
+2 0 1 1 0 0 
+3 0 1 1 0 0 
+2 0 1 1 0 0 
+3 0 1 1 0 0 
+0 0 2 0 0 0 
+1 0 2 0 0 0 
+0 0 2 0 0 0 
+1 0 2 0 0 0 
+0 0 2 1 0 0 
+1 0 2 1 0 0 
+0 0 2 1 0 0 
+1 0 2 1 0 0 
+2 0 2 0 0 0 
+3 0 2 0 0 0 
+2 0 2 0 0 0 
+3 0 2 0 0 0 
+2 0 2 1 0 0 
+3 0 2 1 0 0 
+2 0 2 1 0 0 
+3 0 2 1 0 0 
+0 0 3 0 0 0 
+1 0 3 0 0 0 
+0 0 3 0 0 0 
+1 0 3 0 0 0 
+0 0 3 1 0 0 
+1 0 3 1 0 0 
+0 0 3 1 0 0 
+1 0 3 1 0 0 
+2 0 3 0 0 0 
+3 0 3 0 0 0 
+2 0 3 0 0 0 
+3 0 3 0 0 0 
+2 0 3 1 0 0 
+3 0 3 1 0 0 
+2 0 3 1 0 0 
+3 0 3 1 0 0 
+4 0 0 0 0 0 
+0 1 0 0 0 0 
+4 0 0 0 0 0 
+0 1 0 0 0 0 
+4 0 0 1 0 0 
+0 1 0 1 0 0 
+4 0 0 1 0 0 
+0 1 0 1 0 0 
+1 1 0 0 0 0 
+2 1 0 0 0 0 
+1 1 0 0 0 0 
+2 1 0 0 0 0 
+1 1 0 1 0 0 
+2 1 0 1 0 0 
+1 1 0 1 0 0 
+2 1 0 1 0 0 
+4 0 1 0 0 0 
+0 1 1 0 0 0 
+4 0 1 0 0 0 
+0 1 1 0 0 0 
+4 0 1 1 0 0 
+0 1 1 1 0 0 
+4 0 1 1 0 0 
+0 1 1 1 0 0 
+1 1 1 0 0 0 
+2 1 1 0 0 0 
+1 1 1 0 0 0 
+2 1 1 0 0 0 
+1 1 1 1 0 0 
+2 1 1 1 0 0 
+1 1 1 1 0 0 
+2 1 1 1 0 0 
+4 0 2 0 0 0 
+0 1 2 0 0 0 
+4 0 2 0 0 0 
+0 1 2 0 0 0 
+4 0 2 1 0 0 
+0 1 2 1 0 0 
+4 0 2 1 0 0 
+0 1 2 1 0 0 
+1 1 2 0 0 0 
+2 1 2 0 0 0 
+1 1 2 0 0 0 
+2 1 2 0 0 0 
+1 1 2 1 0 0 
+2 1 2 1 0 0 
+1 1 2 1 0 0 
+2 1 2 1 0 0 
+4 0 3 0 0 0 
+0 1 3 0 0 0 
+4 0 3 0 0 0 
+0 1 3 0 0 0 
+4 0 3 1 0 0 
+0 1 3 1 0 0 
+4 0 3 1 0 0 
+0 1 3 1 0 0 
+1 1 3 0 0 0 
+2 1 3 0 0 0 
+1 1 3 0 0 0 
+2 1 3 0 0 0 
+1 1 3 1 0 0 
+2 1 3 1 0 0 
+1 1 3 1 0 0 
+2 1 3 1 0 0 
+3 1 0 0 0 0 
+4 1 0 0 0 0 
+3 1 0 0 0 0 
+4 1 0 0 0 0 
+3 1 0 1 0 0 
+4 1 0 1 0 0 
+3 1 0 1 0 0 
+4 1 0 1 0 0 
+0 2 0 0 0 0 
+1 2 0 0 0 0 
+0 2 0 0 0 0 
+1 2 0 0 0 0 
+0 2 0 1 0 0 
+1 2 0 1 0 0 
+0 2 0 1 0 0 
+1 2 0 1 0 0 
+3 1 1 0 0 0 
+4 1 1 0 0 0 
+3 1 1 0 0 0 
+4 1 1 0 0 0 
+3 1 1 1 0 0 
+4 1 1 1 0 0 
+3 1 1 1 0 0 
+4 1 1 1 0 0 
+0 2 1 0 0 0 
+1 2 1 0 0 0 
+0 2 1 0 0 0 
+1 2 1 0 0 0 
+0 2 1 1 0 0 
+1 2 1 1 0 0 
+0 2 1 1 0 0 
+1 2 1 1 0 0 
+3 1 2 0 0 0 
+4 1 2 0 0 0 
+3 1 2 0 0 0 
+4 1 2 0 0 0 
+3 1 2 1 0 0 
+4 1 2 1 0 0 
+3 1 2 1 0 0 
+4 1 2 1 0 0 
+0 2 2 0 0 0 
+1 2 2 0 0 0 
+0 2 2 0 0 0 
+1 2 2 0 0 0 
+0 2 2 1 0 0 
+1 2 2 1 0 0 
+0 2 2 1 0 0 
+1 2 2 1 0 0 
+3 1 3 0 0 0 
+4 1 3 0 0 0 
+3 1 3 0 0 0 
+4 1 3 0 0 0 
+3 1 3 1 0 0 
+4 1 3 1 0 0 
+3 1 3 1 0 0 
+4 1 3 1 0 0 
+0 2 3 0 0 0 
+1 2 3 0 0 0 
+0 2 3 0 0 0 
+1 2 3 0 0 0 
+0 2 3 1 0 0 
+1 2 3 1 0 0 
+0 2 3 1 0 0 
+1 2 3 1 0 0 
+2 2 0 0 0 0 
+3 2 0 0 0 0 
+2 2 0 0 0 0 
+3 2 0 0 0 0 
+2 2 0 1 0 0 
+3 2 0 1 0 0 
+2 2 0 1 0 0 
+3 2 0 1 0 0 
+4 2 0 0 0 0 
+0 3 0 0 0 0 
+4 2 0 0 0 0 
+0 3 0 0 0 0 
+4 2 0 1 0 0 
+0 3 0 1 0 0 
+4 2 0 1 0 0 
+0 3 0 1 0 0 
+2 2 1 0 0 0 
+3 2 1 0 0 0 
+2 2 1 0 0 0 
+3 2 1 0 0 0 
+2 2 1 1 0 0 
+3 2 1 1 0 0 
+2 2 1 1 0 0 
+3 2 1 1 0 0 
+4 2 1 0 0 0 
+0 3 1 0 0 0 
+4 2 1 0 0 0 
+0 3 1 0 0 0 
+4 2 1 1 0 0 
+0 3 1 1 0 0 
+4 2 1 1 0 0 
+0 3 1 1 0 0 
+2 2 2 0 0 0 
+3 2 2 0 0 0 
+2 2 2 0 0 0 
+3 2 2 0 0 0 
+2 2 2 1 0 0 
+3 2 2 1 0 0 
+2 2 2 1 0 0 
+3 2 2 1 0 0 
+4 2 2 0 0 0 
+0 3 2 0 0 0 
+4 2 2 0 0 0 
+0 3 2 0 0 0 
+4 2 2 1 0 0 
+0 3 2 1 0 0 
+4 2 2 1 0 0 
+0 3 2 1 0 0 
+2 2 3 0 0 0 
+3 2 3 0 0 0 
+2 2 3 0 0 0 
+3 2 3 0 0 0 
+2 2 3 1 0 0 
+3 2 3 1 0 0 
+2 2 3 1 0 0 
+3 2 3 1 0 0 
+4 2 3 0 0 0 
+0 3 3 0 0 0 
+4 2 3 0 0 0 
+0 3 3 0 0 0 
+4 2 3 1 0 0 
+0 3 3 1 0 0 
+4 2 3 1 0 0 
+0 3 3 1 0 0 
+1 3 0 0 0 0 
+2 3 0 0 0 0 
+1 3 0 0 0 0 
+2 3 0 0 0 0 
+1 3 0 1 0 0 
+2 3 0 1 0 0 
+1 3 0 1 0 0 
+2 3 0 1 0 0 
+3 3 0 0 0 0 
+4 3 0 0 0 0 
+3 3 0 0 0 0 
+4 3 0 0 0 0 
+3 3 0 1 0 0 
+4 3 0 1 0 0 
+3 3 0 1 0 0 
+4 3 0 1 0 0 
+1 3 1 0 0 0 
+2 3 1 0 0 0 
+1 3 1 0 0 0 
+2 3 1 0 0 0 
+1 3 1 1 0 0 
+2 3 1 1 0 0 
+1 3 1 1 0 0 
+2 3 1 1 0 0 
+3 3 1 0 0 0 
+4 3 1 0 0 0 
+3 3 1 0 0 0 
+4 3 1 0 0 0 
+3 3 1 1 0 0 
+4 3 1 1 0 0 
+3 3 1 1 0 0 
+4 3 1 1 0 0 
+1 3 2 0 0 0 
+2 3 2 0 0 0 
+1 3 2 0 0 0 
+2 3 2 0 0 0 
+1 3 2 1 0 0 
+2 3 2 1 0 0 
+1 3 2 1 0 0 
+2 3 2 1 0 0 
+3 3 2 0 0 0 
+4 3 2 0 0 0 
+3 3 2 0 0 0 
+4 3 2 0 0 0 
+3 3 2 1 0 0 
+4 3 2 1 0 0 
+3 3 2 1 0 0 
+4 3 2 1 0 0 
+1 3 3 0 0 0 
+2 3 3 0 0 0 
+1 3 3 0 0 0 
+2 3 3 0 0 0 
+1 3 3 1 0 0 
+2 3 3 1 0 0 
+1 3 3 1 0 0 
+2 3 3 1 0 0 
+3 3 3 0 0 0 
+4 3 3 0 0 0 
+3 3 3 0 0 0 
+4 3 3 0 0 0 
+3 3 3 1 0 0 
+4 3 3 1 0 0 
+3 3 3 1 0 0 
+4 3 3 1 0 0 
+-------------RESULT END-------------
+DiskIOs: 1536
+DiskTimer: 104256.79999999939
+
+DROP TABLE t1
+DiskIOs: 0
+DiskTimer: 0.0
+
+DROP TABLE t2
+DiskIOs: 0
+DiskTimer: 0.0
+
+DROP TABLE t3
+DiskIOs: 0
+DiskTimer: 0.0
+
+DROP TABLE t4
+DiskIOs: 0
+DiskTimer: 0.0
+
+DROP TABLE t5
+DiskIOs: 0
+DiskTimer: 0.0
+
+DROP TABLE t6
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, NULL, 100, 100, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, grade, exam, project, homework) VALUES (3, "E", 100, 100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+INSERT INTO course (sid, homework, project, exam, grade) SELECT * FROM course
+DiskIOs: 9
+DiskTimer: 650.41
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 6
+DiskTimer: 394.63
+
+DELETE FROM course WHERE grade = "E"
+DiskIOs: 27
+DiskTimer: 1802.4100000000003
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (4, 99, 100, 100, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+4 99 100 100 "B" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+DELETE FROM course
+DiskIOs: 12
+DiskTimer: 831.78
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+DROP TABLE course
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 100, 98, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 69, 64, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (15, 100, 50, 90, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (15, 100, 99, 100, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (17, 100, 100, 100, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, 100, 100, 99, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (4, 100, 100, 97, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (5, 100, 100, 66, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (6, 100, 100, 65, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (7, 100, 50, 73, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (8, 50, 50, 62, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (9, 50, 50, 61, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (10, 50, 70, 70, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (11, 50, 50, 59, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (12, 0, 70, 58, "C")
+CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, NULL, 100, 100, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, grade, exam, project, homework) VALUES (3, "E", 100, 100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+INSERT INTO course (sid, homework, project, exam, grade) SELECT * FROM course
+DiskIOs: 9
+DiskTimer: 650.41
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 6
+DiskTimer: 394.63
+
+DELETE FROM course WHERE grade = "E"
+DiskIOs: 27
+DiskTimer: 1802.4100000000003
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (4, 99, 100, 100, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+4 99 100 100 "B" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+DELETE FROM course
+DiskIOs: 12
+DiskTimer: 831.78
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+DROP TABLE course
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 100, 98, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 69, 64, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (15, 100, 50, 90, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (15, 100, 99, 100, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (17, 100, 100, 100, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, 100, 100, 99, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (4, 100, 100, 97, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (5, 100, 100, 66, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (6, 100, 100, 65, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (7, 100, 50, 73, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (8, 50, 50, 62, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (9, 50, 50, 61, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (10, 50, 70, 70, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (11, 50, 50, 59, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (12, 0, 70, 58, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (13, 0, 50, 77, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (14, 50, 50, 56, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (17, 100, 100, 100, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+3 100 100 98 "C" 
+3 100 69 64 "C" 
+15 100 50 90 "E" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+2 100 100 99 "B" 
+4 100 100 97 "D" 
+5 100 100 66 "A" 
+6 100 100 65 "B" 
+7 100 50 73 "C" 
+8 50 50 62 "C" 
+9 50 50 61 "D" 
+10 50 70 70 "C" 
+11 50 50 59 "D" 
+12 0 70 58 "C" 
+13 0 50 77 "C" 
+14 50 50 56 "D" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 58
+DiskTimer: 3775.78
+
+SELECT sid, grade FROM course
+------------RESULT START------------
+sid grade 1 "A" 
+3 "C" 
+3 "C" 
+15 "E" 
+15 "E" 
+17 "A" 
+2 "B" 
+4 "D" 
+5 "A" 
+6 "B" 
+7 "C" 
+8 "C" 
+9 "D" 
+10 "C" 
+11 "D" 
+12 "C" 
+13 "C" 
+14 "D" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+17 "A" 
+-------------RESULT END-------------
+DiskIOs: 58
+DiskTimer: 3775.78
+
+SELECT sid, course.grade FROM course
+------------RESULT START------------
+sid course.grade 1 "A" 
+3 "C" 
+3 "C" 
+15 "E" 
+15 "E" 
+17 "A" 
+2 "B" 
+4 "D" 
+5 "A" 
+6 "B" 
+7 "C" 
+8 "C" 
+9 "D" 
+10 "C" 
+11 "D" 
+12 "C" 
+13 "C" 
+14 "D" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+17 "A" 
+-------------RESULT END-------------
+DiskIOs: 58
+DiskTimer: 3775.78
+
+SELECT DISTINCT grade FROM course
+------------RESULT START------------
+grade "A" 
+"B" 
+"C" 
+"D" 
+"E" 
+-------------RESULT END-------------
+DiskIOs: 184
+DiskTimer: 12541.35999999996
+
+SELECT DISTINCT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 100 100 99 "B" 
+3 100 69 64 "C" 
+3 100 100 98 "C" 
+4 100 100 97 "D" 
+5 100 100 66 "A" 
+6 100 100 65 "B" 
+7 100 50 73 "C" 
+8 50 50 62 "C" 
+9 50 50 61 "D" 
+10 50 70 70 "C" 
+11 50 50 59 "D" 
+12 0 70 58 "C" 
+13 0 50 77 "C" 
+14 50 50 56 "D" 
+15 100 50 90 "E" 
+15 100 99 100 "E" 
+16 0 0 0 "E" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 212
+DiskTimer: 14354.619999999959
+
+SELECT * FROM course ORDER BY exam
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+14 50 50 56 "D" 
+12 0 70 58 "C" 
+11 50 50 59 "D" 
+9 50 50 61 "D" 
+8 50 50 62 "C" 
+3 100 69 64 "C" 
+6 100 100 65 "B" 
+5 100 100 66 "A" 
+10 50 70 70 "C" 
+7 100 50 73 "C" 
+13 0 50 77 "C" 
+15 100 50 90 "E" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 290
+DiskTimer: 19431.65999999996
+
+SELECT * FROM course WHERE exam = 100
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 66
+DiskTimer: 4309.04
+
+SELECT * FROM course WHERE grade = "A"
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+5 100 100 66 "A" 
+1 99 100 100 "A" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 66
+DiskTimer: 4309.04
+
+SELECT * FROM course WHERE exam = 100 AND project = 100
+------------RESULT START------------
+CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, NULL, 100, 100, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, grade, exam, project, homework) VALUES (3, "E", 100, 100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+INSERT INTO course (sid, homework, project, exam, grade) SELECT * FROM course
+DiskIOs: 9
+DiskTimer: 650.41
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 6
+DiskTimer: 394.63
+
+DELETE FROM course WHERE grade = "E"
+DiskIOs: 27
+DiskTimer: 1802.4100000000003
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (4, 99, 100, 100, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+4 99 100 100 "B" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+DELETE FROM course
+CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, NULL, 100, 100, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, grade, exam, project, homework) VALUES (3, "E", 100, 100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+INSERT INTO course (sid, homework, project, exam, grade) SELECT * FROM course
+DiskIOs: 9
+DiskTimer: 650.41
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 6
+DiskTimer: 394.63
+
+DELETE FROM course WHERE grade = "E"
+DiskIOs: 27
+DiskTimer: 1802.4100000000003
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (4, 99, 100, 100, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+4 99 100 100 "B" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+DELETE FROM course
+DiskIOs: 12
+DiskTimer: 831.78
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+DROP TABLE course
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 100, 98, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 69, 64, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (15, 100, 50, 90, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (15, 100, 99, 100, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (17, 100, 100, 100, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, 100, 100, 99, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (4, 100, 100, 97, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (5, 100, 100, 66, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (6, 100, 100, 65, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (7, 100, 50, 73, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (8, 50, 50, 62, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (9, 50, 50, 61, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (10, 50, 70, 70, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (11, 50, 50, 59, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (12, 0, 70, 58, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (13, 0, 50, 77, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (14, 50, 50, 56, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (17, 100, 100, 100, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+3 100 100 98 "C" 
+3 100 69 64 "C" 
+15 100 50 90 "E" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+2 100 100 99 "B" 
+4 100 100 97 "D" 
+5 100 100 66 "A" 
+6 100 100 65 "B" 
+7 100 50 73 "C" 
+8 50 50 62 "C" 
+9 50 50 61 "D" 
+10 50 70 70 "C" 
+11 50 50 59 "D" 
+12 0 70 58 "C" 
+13 0 50 77 "C" 
+14 50 50 56 "D" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, NULL, 100, 100, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, grade, exam, project, homework) VALUES (3, "E", 100, 100, 100)
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+INSERT INTO course (sid, homework, project, exam, grade) SELECT * FROM course
+DiskIOs: 9
+DiskTimer: 650.41
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+1 99 100 100 "A" 
+2 NULL 100 100 "E" 
+3 100 100 100 "E" 
+-------------RESULT END-------------
+DiskIOs: 6
+DiskTimer: 394.63
+
+DELETE FROM course WHERE grade = "E"
+DiskIOs: 27
+DiskTimer: 1802.4100000000003
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 2
+DiskTimer: 138.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (4, 99, 100, 100, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+1 99 100 100 "A" 
+4 99 100 100 "B" 
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+DELETE FROM course
+DiskIOs: 12
+DiskTimer: 831.78
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+-------------RESULT END-------------
+DiskIOs: 3
+DiskTimer: 202.63
+
+DROP TABLE course
+DiskIOs: 0
+DiskTimer: 0.0
+
+CREATE TABLE course (sid INT, homework INT, project INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (1, 99, 100, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 100, 98, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (3, 100, 69, 64, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (15, 100, 50, 90, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (15, 100, 99, 100, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (17, 100, 100, 100, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (2, 100, 100, 99, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (4, 100, 100, 97, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (5, 100, 100, 66, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (6, 100, 100, 65, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (7, 100, 50, 73, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (8, 50, 50, 62, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (9, 50, 50, 61, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (10, 50, 70, 70, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (11, 50, 50, 59, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (12, 0, 70, 58, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (13, 0, 50, 77, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (14, 50, 50, 56, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (16, 0, 0, 0, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course (sid, homework, project, exam, grade) VALUES (17, 100, 100, 100, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+3 100 100 98 "C" 
+3 100 69 64 "C" 
+15 100 50 90 "E" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+2 100 100 99 "B" 
+4 100 100 97 "D" 
+5 100 100 66 "A" 
+6 100 100 65 "B" 
+7 100 50 73 "C" 
+8 50 50 62 "C" 
+9 50 50 61 "D" 
+10 50 70 70 "C" 
+11 50 50 59 "D" 
+12 0 70 58 "C" 
+13 0 50 77 "C" 
+14 50 50 56 "D" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 58
+DiskTimer: 3775.78
+
+SELECT sid, grade FROM course
+------------RESULT START------------
+sid grade 1 "A" 
+3 "C" 
+3 "C" 
+15 "E" 
+15 "E" 
+17 "A" 
+2 "B" 
+4 "D" 
+5 "A" 
+6 "B" 
+7 "C" 
+8 "C" 
+9 "D" 
+10 "C" 
+11 "D" 
+12 "C" 
+13 "C" 
+14 "D" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+17 "A" 
+-------------RESULT END-------------
+DiskIOs: 58
+DiskTimer: 3775.78
+
+SELECT sid, course.grade FROM course
+------------RESULT START------------
+sid course.grade 1 "A" 
+3 "C" 
+3 "C" 
+15 "E" 
+15 "E" 
+17 "A" 
+2 "B" 
+4 "D" 
+5 "A" 
+6 "B" 
+7 "C" 
+8 "C" 
+9 "D" 
+10 "C" 
+11 "D" 
+12 "C" 
+13 "C" 
+14 "D" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+16 "E" 
+17 "A" 
+-------------RESULT END-------------
+DiskIOs: 58
+DiskTimer: 3775.78
+
+SELECT DISTINCT grade FROM course
+------------RESULT START------------
+grade "A" 
+"B" 
+"C" 
+"D" 
+"E" 
+-------------RESULT END-------------
+DiskIOs: 184
+DiskTimer: 12541.35999999996
+
+SELECT DISTINCT * FROM course
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+2 100 100 99 "B" 
+3 100 69 64 "C" 
+3 100 100 98 "C" 
+4 100 100 97 "D" 
+5 100 100 66 "A" 
+6 100 100 65 "B" 
+7 100 50 73 "C" 
+8 50 50 62 "C" 
+9 50 50 61 "D" 
+10 50 70 70 "C" 
+11 50 50 59 "D" 
+12 0 70 58 "C" 
+13 0 50 77 "C" 
+14 50 50 56 "D" 
+15 100 50 90 "E" 
+15 100 99 100 "E" 
+16 0 0 0 "E" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 212
+DiskTimer: 14354.619999999959
+
+SELECT * FROM course ORDER BY exam
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+16 0 0 0 "E" 
+14 50 50 56 "D" 
+12 0 70 58 "C" 
+11 50 50 59 "D" 
+9 50 50 61 "D" 
+8 50 50 62 "C" 
+3 100 69 64 "C" 
+6 100 100 65 "B" 
+5 100 100 66 "A" 
+10 50 70 70 "C" 
+7 100 50 73 "C" 
+13 0 50 77 "C" 
+15 100 50 90 "E" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 290
+DiskTimer: 19431.65999999996
+
+SELECT * FROM course WHERE exam = 100
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 66
+DiskTimer: 4309.04
+
+SELECT * FROM course WHERE grade = "A"
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+5 100 100 66 "A" 
+1 99 100 100 "A" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 66
+DiskTimer: 4309.04
+
+SELECT * FROM course WHERE exam = 100 AND project = 100
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+1 99 100 100 "A" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 64
+DiskTimer: 4181.04
+
+SELECT * FROM course WHERE exam = 100 OR exam = 99
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 68
+DiskTimer: 4437.04
+
+SELECT * FROM course WHERE NOT exam = 0
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+3 100 69 64 "C" 
+6 100 100 65 "B" 
+5 100 100 66 "A" 
+15 100 50 90 "E" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+14 50 50 56 "D" 
+12 0 70 58 "C" 
+11 50 50 59 "D" 
+9 50 50 61 "D" 
+8 50 50 62 "C" 
+10 50 70 70 "C" 
+7 100 50 73 "C" 
+13 0 50 77 "C" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 96
+DiskTimer: 6250.3
+
+SELECT * FROM course WHERE exam > 70
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+15 100 50 90 "E" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+7 100 50 73 "C" 
+13 0 50 77 "C" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 78
+DiskTimer: 5077.04
+
+SELECT * FROM course WHERE exam = 100 OR homework = 100 AND project = 100
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+6 100 100 65 "B" 
+5 100 100 66 "A" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 74
+DiskTimer: 4821.04
+
+SELECT * FROM course WHERE exam = 100 OR homework = 100 AND project = 100
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+6 100 100 65 "B" 
+5 100 100 66 "A" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 74
+DiskTimer: 4821.04
+
+SELECT * FROM course WHERE exam + homework = 200
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 64
+DiskTimer: 4181.04
+
+SELECT * FROM course WHERE ( exam * 30 + homework * 20 + project * 50 ) / 100 = 100
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+17 100 100 100 "A" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 62
+DiskTimer: 4053.0400000000004
+
+SELECT * FROM course WHERE grade = "C" AND exam > 70 OR project > 70 AND NOT ( exam * 30 + homework * 20 + project * 50 ) / 100 < 60
+------------RESULT START------------
+[sid, homework, project, exam, grade]
+6 100 100 65 "B" 
+5 100 100 66 "A" 
+4 100 100 97 "D" 
+3 100 100 98 "C" 
+2 100 100 99 "B" 
+1 99 100 100 "A" 
+15 100 99 100 "E" 
+17 100 100 100 "A" 
+7 100 50 73 "C" 
+17 100 100 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 78
+DiskTimer: 5077.04
+
+CREATE TABLE course2 (sid INT, exam INT, grade STR20)
+DiskIOs: 0
+DiskTimer: 0.0
+
+INSERT INTO course2 (sid, exam, grade) VALUES (1, 100, "A")
+DiskIOs: 1
+DiskTimer: 74.63
+
+INSERT INTO course2 (sid, exam, grade) VALUES (16, 25, "E")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (17, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT * FROM course, course2
+------------RESULT START------------
+[course.sid, course.homework, course.project, course.exam, course.grade, course2.sid, course2.exam, course2.grade]
+3 100 69 64 "C" 1 100 "A" 
+3 100 69 64 "C" 16 25 "E" 
+3 100 69 64 "C" 17 0 "A" 
+6 100 100 65 "B" 1 100 "A" 
+6 100 100 65 "B" 16 25 "E" 
+6 100 100 65 "B" 17 0 "A" 
+5 100 100 66 "A" 1 100 "A" 
+5 100 100 66 "A" 16 25 "E" 
+5 100 100 66 "A" 17 0 "A" 
+15 100 50 90 "E" 1 100 "A" 
+15 100 50 90 "E" 16 25 "E" 
+15 100 50 90 "E" 17 0 "A" 
+4 100 100 97 "D" 1 100 "A" 
+4 100 100 97 "D" 16 25 "E" 
+4 100 100 97 "D" 17 0 "A" 
+3 100 100 98 "C" 1 100 "A" 
+3 100 100 98 "C" 16 25 "E" 
+3 100 100 98 "C" 17 0 "A" 
+2 100 100 99 "B" 1 100 "A" 
+2 100 100 99 "B" 16 25 "E" 
+2 100 100 99 "B" 17 0 "A" 
+1 99 100 100 "A" 1 100 "A" 
+1 99 100 100 "A" 16 25 "E" 
+1 99 100 100 "A" 17 0 "A" 
+15 100 99 100 "E" 1 100 "A" 
+15 100 99 100 "E" 16 25 "E" 
+15 100 99 100 "E" 17 0 "A" 
+17 100 100 100 "A" 1 100 "A" 
+17 100 100 100 "A" 16 25 "E" 
+17 100 100 100 "A" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+14 50 50 56 "D" 1 100 "A" 
+14 50 50 56 "D" 16 25 "E" 
+14 50 50 56 "D" 17 0 "A" 
+12 0 70 58 "C" 1 100 "A" 
+12 0 70 58 "C" 16 25 "E" 
+12 0 70 58 "C" 17 0 "A" 
+11 50 50 59 "D" 1 100 "A" 
+11 50 50 59 "D" 16 25 "E" 
+11 50 50 59 "D" 17 0 "A" 
+9 50 50 61 "D" 1 100 "A" 
+9 50 50 61 "D" 16 25 "E" 
+9 50 50 61 "D" 17 0 "A" 
+8 50 50 62 "C" 1 100 "A" 
+8 50 50 62 "C" 16 25 "E" 
+8 50 50 62 "C" 17 0 "A" 
+10 50 70 70 "C" 1 100 "A" 
+10 50 70 70 "C" 16 25 "E" 
+10 50 70 70 "C" 17 0 "A" 
+7 100 50 73 "C" 1 100 "A" 
+7 100 50 73 "C" 16 25 "E" 
+7 100 50 73 "C" 17 0 "A" 
+13 0 50 77 "C" 1 100 "A" 
+13 0 50 77 "C" 16 25 "E" 
+13 0 50 77 "C" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+16 0 0 0 "E" 1 100 "A" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 17 0 "A" 
+17 100 100 100 "A" 1 100 "A" 
+17 100 100 100 "A" 16 25 "E" 
+17 100 100 100 "A" 17 0 "A" 
+-------------RESULT END-------------
+DiskIOs: 408
+DiskTimer: 27121.850000000013
+
+INSERT INTO course2 (sid, exam, grade) VALUES (2, 99, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (3, 98, "C")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (4, 97, "D")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (5, 66, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (6, 65, "B")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+INSERT INTO course2 (sid, exam, grade) VALUES (18, 0, "A")
+DiskIOs: 2
+DiskTimer: 149.26
+
+SELECT course.sid, course.grade, course2.grade FROM course, course2 WHERE course.sid = course2.sid
+------------RESULT START------------
+course.sid course.grade course2.grade 1 "A" "A" 
+2 "B" "B" 
+3 "C" "C" 
+3 "C" "C" 
+4 "D" "D" 
+5 "A" "A" 
+6 "B" "B" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+16 "E" "E" 
+17 "A" "A" 
+17 "A" "A" 
+-------------RESULT END-------------
+DiskIOs: 402
+DiskTimer: 26854.779999999955
+
+SELECT DISTINCT course.grade, course2.grade FROM course, course2 WHERE course.sid = course2.sid
+------------RESULT START------------
+course.grade course2.grade "A" "A" 
+"B" "B" 
+"C" "C" 
+"D" "D" 
+"E" "E" 
+-------------RESULT END-------------
+DiskIOs: 422
+DiskTimer: 28634.390000000003
+
+SELECT * FROM course, course2 WHERE course.sid = course2.sid ORDER BY course.exam
+------------RESULT START------------
+[course.sid, course.homework, course.project, course.exam, course.grade, course2.sid, course2.exam, course2.grade]
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+16 0 0 0 "E" 16 25 "E" 
+3 100 69 64 "C" 3 98 "C" 
+6 100 100 65 "B" 6 65 "B" 
+5 100 100 66 "A" 5 66 "A" 
+4 100 100 97 "D" 4 97 "D" 
+3 100 100 98 "C" 3 98 "C" 
+2 100 100 99 "B" 2 99 "B" 
+1 99 100 100 "A" 1 100 "A" 
+17 100 100 100 "A" 17 0 "A" 
+17 100 100 100 "A" 17 0 "A" 
+-------------RESULT END-------------
+DiskIOs: 594
+DiskTimer: 39812.46999999994
+
+SELECT * FROM course, course2 WHERE course.sid = course2.sid AND course.exam = 100 AND course2.exam = 100
+------------RESULT START------------
+[course.sid, course.homework, course.project, course.exam, course.grade, course2.sid, course2.exam, course2.grade]
+1 99 100 100 "A" 1 100 "A" 
+-------------RESULT END-------------
+DiskIOs: 308
+DiskTimer: 20753.739999999947
+
+SELECT * FROM course, course2 WHERE course.sid = course2.sid AND course.exam = 100 OR course2.exam = 100
+------------RESULT START------------
