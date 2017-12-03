@@ -1,11 +1,19 @@
 import storageManager.*;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public class QueryHelper {
+    private static String fileName;
 
     //sort relations
     public static Relation sort(SchemaManager schemaManager, Relation relation, MainMemory memory, String fieldName){
         String name = relation.getRelationName() + "_sortBy_" + fieldName;
+
         if(schemaManager.relationExists(name)) schemaManager.deleteRelation(name);
         ArrayList<Tuple> tuples;
         if(relation.getNumOfBlocks() <= memory.getMemorySize()){
@@ -80,12 +88,15 @@ public class QueryHelper {
 
     //projection
     public static void project(Relation relation, MainMemory memory, ParseTree parseTree){
+
         int numOfBlocks = relation.getNumOfBlocks();
         int i = 0;
         if(parseTree.attributes.get(0).equals("*")){
+            Query.writeFile(relation.getSchema().getFieldNames().toString(), true);
             System.out.print(relation.getSchema().getFieldNames());
         }else{
             for(String attr : parseTree.attributes){
+                Query.writeFile(attr + " ", false);
                 System.out.print(attr + " ");
             }
         }
@@ -111,29 +122,34 @@ public class QueryHelper {
             if(parseTree.attributes.get(0).equals("*")){
                 for(int i = 0; i < tuple.getNumOfFields(); ++i){
                     if(tuple.getField(i).type.equals(FieldType.INT) && tuple.getField(i).integer == Integer.MIN_VALUE){
+                        Query.writeFile("NULL ", false);
                         System.out.print("NULL ");
                     }else{
+                        Query.writeFile(tuple.getField(i)+ " ", false);
                         System.out.print(tuple.getField(i)+ " ");
                     }
                 }
                 System.out.println();
+                Query.writeFile("\r\n", false);
             }else{
                 for(String attr : parseTree.attributes){
                     //handle course.grade
                     if(attr.contains(".") && parseTree.tables.size() == 1) attr = attr.split("\\.")[1];
                     //handle NULL case
                     if(tuple.getField(attr).type.equals(FieldType.INT) && tuple.getField(attr).integer == Integer.MIN_VALUE){
+                        Query.writeFile("NULL ", false);
                         System.out.print("NULL ");
                     }else{
+                        Query.writeFile(tuple.getField(attr) + " ", false);
                         System.out.print(tuple.getField(attr) + " ");
                     }
                 }
                 System.out.println();
+                Query.writeFile("\r\n", false);
             }
         }
         clearMainMem(memory);
     }
-
 
     //create temporary relation from tuples
     public static Relation createRelationFromTuples(ArrayList<Tuple> tuples, String name, SchemaManager schemaManager, Relation relation, MainMemory memory){
@@ -212,6 +228,7 @@ public class QueryHelper {
         return tuples;
     }
 
+    //first phase of two pass algorithm, sorted by fieldName
     public static void twoPassHelper(Relation relation, MainMemory memory, String fieldName){
         int numOfBlocks = relation.getNumOfBlocks(),  sortedBlocks = 0;
         ArrayList<Tuple> tuples;
@@ -222,7 +239,28 @@ public class QueryHelper {
             tuples = onePassSort(memory, fieldName, t);
             memory.setTuples(0, tuples);
             relation.setBlocks(sortedBlocks, 0, t);
-            //t <= memory.getMemorySize() ---> error!!!!(When numOfBlocks > 10)
+            //t <= memory.getMemorySize() ---> error!!!!(when t == 10)
+            if(t < memory.getMemorySize()) {
+                break;
+            }else{
+                sortedBlocks += memory.getMemorySize();
+            }
+            clearMainMem(memory);
+        }
+    }
+
+    //first phase of two pass algorithm, general sort
+    public static void twoPassHelper(Relation relation, MainMemory memory){
+        int numOfBlocks = relation.getNumOfBlocks(),  sortedBlocks = 0;
+        ArrayList<Tuple> tuples;
+        while(sortedBlocks < numOfBlocks){
+            int t = Math.min(memory.getMemorySize(), numOfBlocks - sortedBlocks);
+            relation.getBlocks(sortedBlocks, 0, t);
+            //sort main memory
+            tuples = onePassSort(memory, t);
+            memory.setTuples(0, tuples);
+            relation.setBlocks(sortedBlocks, 0, t);
+            //t <= memory.getMemorySize() ---> error!!!!(when t == 10)
             if(t < memory.getMemorySize()) {
                 break;
             }else{
@@ -273,7 +311,6 @@ public class QueryHelper {
                 if(!tuples.get(j).isEmpty() && tuples.get(j).get(0).equals(minTuple)) tuples.get(j).remove(0);
             }
         }
-
         //for(Tuple tuple : res) System.out.println(tuple);
         clearMainMem(memory);
         return res;
@@ -282,16 +319,23 @@ public class QueryHelper {
 
     private static ArrayList<Tuple> onePassRemoveDuplicate(Relation relation, MainMemory memory, String fieldName){
         ArrayList<Tuple> res = new ArrayList<>();
-        HashSet<String> hashSet = new HashSet<>();
         int numOfBlocks = relation.getNumOfBlocks();
-        //relation.setBlocks(0, 0, numOfBlocks) --> error!!!!!!
-        relation.getBlocks(0, 0, numOfBlocks);
+        relation.getBlocks(0, 0, numOfBlocks); //relation.setBlocks() --> error!!!!!!
         ArrayList<Tuple> tuples = memory.getTuples(0, numOfBlocks);
-        for(Tuple tuple : tuples){
-            if(tuple.getField(fieldName).type.equals(FieldType.STR20)){
-                if(hashSet.add(tuple.getField(fieldName).str)) res.add(tuple);
-            }else{
-                if(hashSet.add(Integer.toString(tuple.getField(fieldName).integer))) res.add(tuple);
+        //handle case SELECT DISTINCT * FROM course
+        if(fieldName.equals("*")){
+            HashSet<MyTuple> hashSet = new HashSet<>();
+            for(Tuple tuple : tuples){
+                if(hashSet.add(new MyTuple(tuple))) res.add(tuple);
+            }
+        }else{
+            HashSet<String> hashSet = new HashSet<>();
+            for(Tuple tuple : tuples){
+                if(tuple.getField(fieldName).type.equals(FieldType.STR20)){
+                    if(hashSet.add(tuple.getField(fieldName).str)) res.add(tuple);
+                }else{
+                    if(hashSet.add(Integer.toString(tuple.getField(fieldName).integer))) res.add(tuple);
+                }
             }
         }
         clearMainMem(memory);
@@ -300,11 +344,18 @@ public class QueryHelper {
 
     private static ArrayList<Tuple> twoPassRemoveDuplicate(Relation relation, MainMemory memory, String fieldName){
         //phase 1: making sorted sublists
-        twoPassHelper(relation, memory, fieldName);
+        HashSet<MyTuple> hashSetTuple = new HashSet<>();
+        HashSet<String> hashSet = new HashSet<>();
+        if(fieldName.equals("*")){
+            twoPassHelper(relation, memory);
+            hashSetTuple = new HashSet<>();
+        }else{
+            twoPassHelper(relation, memory, fieldName);
+            hashSet = new HashSet<>();
+        }
 
         //phase 2
         int numOfBlocks = relation.getNumOfBlocks();
-        HashSet<String> hashSet = new HashSet<>();
         ArrayList<Tuple> res = new ArrayList<>();
         ArrayList<ArrayList<Tuple>> tuples = new ArrayList<>();
         ArrayList<Pair<Integer, Integer>> blockIndexOfSublists = new ArrayList<>();
@@ -338,18 +389,23 @@ public class QueryHelper {
             //so the loop could break earlier
             if(minTuples.isEmpty()) break;
 
-            Tuple minTuple = Collections.min(minTuples, new TupleComparator(fieldName));
-            //the 2nd difference - use Hashset
-            if(minTuple.getField(fieldName).type.equals(FieldType.STR20)){
-                if(hashSet.add(minTuple.getField(fieldName).str)) res.add(minTuple);
+            if(fieldName.equals("*")){
+                Tuple minTuple = Collections.min(minTuples, new TupleComparator());
+                //the 2nd difference - use Hashset
+                if(hashSetTuple.add(new MyTuple(minTuple))) res.add(minTuple);
+                //the 3rd difference - remove all minimum elements
+                for(ArrayList<Tuple> tuple : tuples){
+                    if(!tuple.isEmpty()) {
+                        if(new MyTuple(tuple.get(0)).equals(new MyTuple(minTuple))) tuple.remove(0);
+                    }
+                }
             }else{
-                if(hashSet.add(Integer.toString(minTuple.getField(fieldName).integer))) res.add(minTuple);
-            }
-
-            //the 3rd difference - remove all minimum elements
-            for(ArrayList<Tuple> tuple : tuples){
-                if(!tuple.isEmpty()) {
-                    if(tuple.get(0).getField(fieldName).type.equals(minTuple.getField(fieldName).type)){
+                Tuple minTuple = Collections.min(minTuples, new TupleComparator(fieldName));
+                //the 2nd difference - use Hashset
+                if(hashSet.add(minTuple.getField(fieldName).toString())) res.add(minTuple);
+                //the 3rd difference - remove all minimum elements
+                for(ArrayList<Tuple> tuple : tuples){
+                    if(!tuple.isEmpty()) {
                         if(tuple.get(0).getField(fieldName).type.equals(FieldType.STR20)){
                             if(tuple.get(0).getField(fieldName).str.equals(minTuple.getField(fieldName).str))
                                 tuple.remove(0);
@@ -360,19 +416,6 @@ public class QueryHelper {
                     }
                 }
             }
-//            for(int j = 0; j < tuples.size(); ++j){
-//                if(!tuples.get(j).isEmpty()) {
-//                    if(tuples.get(j).get(0).getField(fieldName).type.equals(minTuple.getField(fieldName).type)){
-//                        if(tuples.get(j).get(0).getField(fieldName).type.equals(FieldType.STR20)){
-//                            if(tuples.get(j).get(0).getField(fieldName).str.equals(minTuple.getField(fieldName).str))
-//                                tuples.get(j).remove(0);
-//                        }else{
-//                            if(tuples.get(j).get(0).getField(fieldName).integer == minTuple.getField(fieldName).integer)
-//                                tuples.get(j).remove(0);
-//                        }
-//                    }
-//                }
-//            }
         }
 
         //for(Tuple tuple : res) System.out.println(tuple);
@@ -407,6 +450,7 @@ public class QueryHelper {
         clearMainMem(memory);
     }
 
+
     public static void clearMainMem(MainMemory memory){
         for(int i = 0; i < memory.getMemorySize(); ++i) memory.getBlock(i).clear();
     }
@@ -422,7 +466,28 @@ class Pair<A, B> {
     }
 }
 
+class MyTuple{
 
+    public Tuple tuple;
+    public String fields;
+    MyTuple(Tuple tuple){
+        this.tuple = tuple;
+        this.fields = "";
+        for(int i = 0; i < tuple.getNumOfFields(); ++i){
+            fields += tuple.getField(i).toString();
+        }
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof MyTuple)) return false;
+        return this.hashCode() == obj.hashCode();
+    }
+
+    public int hashCode() {
+        return this.fields.hashCode();
+    }
+
+}
 
 
 

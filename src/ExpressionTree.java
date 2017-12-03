@@ -189,42 +189,45 @@ public class ExpressionTree {
             TotalResult.add(ReturnResults(tuple, Roots.get(i)));
         }
 
+        for(int i=0; i<AndOrNots.size(); i++){
+            String condition = AndOrNots.get(i);
+            if(condition.equals("not")){
+                if(TotalResult.get(i).equals("true"))
+                    TotalResult.set(i,"false");
+                else TotalResult.set(i, "true");
+            }
+        }
+
         int j=0;
         for(int i=0; i<AndOrNots.size(); i++){
             String condition=AndOrNots.get(i);
-            if(condition.equals("not")){
-                if(TotalResult.get(j).equals("true"))
-                    TotalResult.set(j,"false");
-                else TotalResult.set(j,"true");
-            }else{
-                if(condition.equals("and")){
-                    if(TotalResult.get(j).equals("true")&&TotalResult.get(j+1).equals("true")){
+            if(condition.equals("and")){
+                if(TotalResult.get(j).equals("true")&&TotalResult.get(j+1).equals("true")){
 
-                    }else{
-                        TotalResult.set(j,"false");
-                        TotalResult.set(j+1,"false");
-                    }
                 }else{
-                    if(TotalResult.get(j).equals("true")||TotalResult.get(j+1).equals("true")){
-                        TotalResult.set(j,"true");
-                        TotalResult.set(j+1,"true");
-                    }
+                    TotalResult.set(j,"false");
+                    TotalResult.set(j+1,"false");
                 }
-                j++;
+            }else if(condition.equals("or")){
+                if(TotalResult.get(j).equals("true")||TotalResult.get(j+1).equals("true")){
+                    TotalResult.set(j,"true");
+                    TotalResult.set(j+1,"true");
+                }
             }
+            j++;
         }
+
         return TotalResult.get(TotalResult.size() - 1).equals("true");
     }
 
     private void PrintTraversal(TreeNode root){
         if(root.leftchild!=null) PrintTraversal(root.leftchild);
+        //root.PrintNode();
         if(root.rightchild!=null) PrintTraversal(root.rightchild);
     }
 
     private String ReturnResults(Tuple tuple, TreeNode root){
-
         String word=root.root;
-
         if(word.equals("+")){
             String left=ReturnResults(tuple, root.leftchild);
             String right=ReturnResults(tuple, root.rightchild);
@@ -269,18 +272,17 @@ public class ExpressionTree {
                 int Intright=Integer.parseInt(right);
                 return String.valueOf(Intleft==Intright);
             }else{
-                return String.valueOf(left.equalsIgnoreCase(right));
+                return String.valueOf(left.equals(right));
             }
         }else if(isInteger(word)){
             return word;
         }else{
-            ArrayList<String> fieldNames = tuple.getSchema().getFieldNames();
-            for(String s : fieldNames){
-                if(s.equalsIgnoreCase(word)){
-                    return tuple.getField(word).toString();
-                }
+            if(tuple.getSchema().fieldNamesToString().contains(word)){
+                return tuple.getField(word).toString();
+            }else{
+                word = word.replace("\"","");
+                return word;
             }
-            return word;
         }
 
     }

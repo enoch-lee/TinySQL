@@ -1,5 +1,9 @@
 import java.io.*;
 import java.util.ArrayList;
+import java.nio.file.*;
+import java.nio.charset.Charset;
+import java.util.Scanner;
+
 import storageManager.*;
 
 public class Query {
@@ -7,10 +11,7 @@ public class Query {
     private static MainMemory memory = new MainMemory();
     private static Disk disk = new Disk();
     private static SchemaManager schemaMG = new SchemaManager(memory, disk);
-
-    public SchemaManager getSchemaMG() {
-        return schemaMG;
-    }
+    private static String FILENAME;
 
     public Query(){ }
 
@@ -23,7 +24,13 @@ public class Query {
         disk.resetDiskTimer();
     }
 
+    public static void resetDisk(){
+        disk.resetDiskIOs();
+        disk.resetDiskTimer();
+    }
+
     public static void parseQuery(String m){
+        System.out.println(m);
         m = m.toLowerCase();
         String[] Command= m.trim().toLowerCase().split("[\\s]+");
         String first = Command[0];
@@ -152,6 +159,9 @@ public class Query {
 
     /************SELECT************/
     private static void selectQuery(String sql){
+        writeFile(sql, true);
+        Query.writeFile("********START********", true);
+        System.out.println("********START********");
         Statement stmt = parser.selectStatement(sql);
         ParseTree parseTree = stmt.parseTree;
         if(parseTree.tables.size() == 1){
@@ -159,6 +169,10 @@ public class Query {
         }else{
             selectMultiRelation(parseTree);
         }
+        Query.writeFile("**********END**********", true);
+        Query.writeFile("\r\n", true);
+        System.out.println("**********END**********");
+        System.out.println();
     }
 
     private static void selectSingleRelation(ParseTree parseTree){
@@ -236,6 +250,7 @@ public class Query {
         tempRelations.add(relation.getRelationName());
 
 
+
         //if DISTINCT
         if(parseTree.distinct){
             relation = QueryHelper.distinct(schemaMG, relation, memory, parseTree.dist_attribute);
@@ -243,12 +258,16 @@ public class Query {
             tempRelations.add(relation.getRelationName());
         }
 
+        System.out.println(relation);
+
         //selection
         if(parseTree.where){
             relation = QueryHelper.select(schemaMG, relation, memory, parseTree);
             QueryHelper.clearMainMem(memory);
             tempRelations.add(relation.getRelationName());
         }
+
+
 
         //if ORDER BY
         if(parseTree.order){
@@ -260,12 +279,6 @@ public class Query {
         //projection
         //System.out.println(relation.getNumOfTuples());
         QueryHelper.project(relation, memory, parseTree);
-
-        //System.out.println(relation.getRelationName());
-        ArrayList<String> names = relation.getSchema().getFieldNames();
-        for(String name:names){
-            //System.out.println(name);
-        }
 
         //delete all intermediate relations
         if(tempRelations.isEmpty()) return;
@@ -305,25 +318,70 @@ public class Query {
         }
     }
 
+
+
+    public static void setFileName(String name){
+        FILENAME = name;
+    }
+
+    public static void writeFile(String output, Boolean newLine){
+        try {
+            Path file = Paths.get(FILENAME);
+            if(newLine){
+                output += "\r\n";
+            }
+            Files.write(file, output.getBytes(),  StandardOpenOption.APPEND);
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public static void readFile(String fileName) {
-        BufferedReader br = null;
+        BufferedReader br;
         try {
             br = new BufferedReader(new FileReader(fileName));
             String line;
             while((line = br.readLine()) != null) {
                 parseQuery(line);
             }
-        } catch(FileNotFoundException ex) {
-            System.out.println("Unable to open file '" + fileName + "'");
-        }
-        catch(IOException ex) {
-            System.out.println("Error reading file '" + fileName + "'");
+        } catch(IOException ex) {
+            ex.printStackTrace();
         }
     }
 
     public static void main(String[] args) throws IOException {
+        long startTime = System.nanoTime();
         Query.reset();
+        Query.setFileName("src/test2.txt");
         Query.readFile("src/test.txt");
+//        Scanner in = new Scanner(System.in);
+//        System.out.println("Set Up Output File Name:");
+//        String outputFile = in.nextLine();
+//        Query.setFileName("src/" + outputFile);
+//        while (true) {
+//            System.out.println("Select TinySQL Mode (Press 1 or 2 to Select and Press Q to quit):");
+//            System.out.println("1.Input SQL Statement");
+//            System.out.println("2.Input SQL File Name");
+//            String s = in.nextLine();
+//            if(s.equalsIgnoreCase("1")) {
+//                System.out.println("Please Input SQL Query at a Line:");
+//                String sql = in.nextLine();
+//                if(sql.equalsIgnoreCase("q")) break;
+//                Query.parseQuery(sql);
+//            } else if (s.equalsIgnoreCase("2")) {
+//                System.out.println("Please Input a File Name(.txt):");
+//                String fileName = in.nextLine();
+//                if(fileName.equalsIgnoreCase("q")) break;
+//                Query.readFile("src/" + fileName);
+//            }else if(s.equalsIgnoreCase("Q")){
+//                break;
+//            }else{
+//                System.out.println("Invalid Input!");
+//            }
+//        }
+        //Query.readFile("src/test.txt");
+        long endTime = System.nanoTime();
+        System.out.println("Used: " + (endTime - startTime) / 1000000000 + "s");
     }
 }
 
