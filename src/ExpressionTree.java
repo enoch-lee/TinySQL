@@ -217,6 +217,7 @@ public class ExpressionTree {
             j++;
         }
 
+        //System.out.println(TotalResult.get(TotalResult.size() - 1));
         return TotalResult.get(TotalResult.size() - 1).equals("true");
     }
 
@@ -272,7 +273,7 @@ public class ExpressionTree {
                 int Intright=Integer.parseInt(right);
                 return String.valueOf(Intleft==Intright);
             }else{
-                return String.valueOf(left.equals(right));
+                return String.valueOf(left.equalsIgnoreCase(right)); //equalsIgnoreCase!!!
             }
         }else if(isInteger(word)){
             return word;
@@ -280,7 +281,7 @@ public class ExpressionTree {
             if(tuple.getSchema().fieldNamesToString().contains(word)){
                 return tuple.getField(word).toString();
             }else{
-                word = word.replace("\"","");
+                //word = word.replace("\"",""); //ignore all ""
                 return word;
             }
         }

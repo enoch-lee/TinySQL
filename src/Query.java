@@ -1,7 +1,6 @@
 import java.io.*;
-import java.util.ArrayList;
 import java.nio.file.*;
-import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import storageManager.*;
@@ -15,7 +14,7 @@ public class Query {
 
     public Query(){ }
 
-    private static void reset(){
+    public static void reset(){
         parser = new Parser();
         memory = new MainMemory();
         disk = new Disk();
@@ -31,6 +30,7 @@ public class Query {
 
     public static void parseQuery(String m){
         System.out.println(m);
+        Query.writeFile(m, true);
         m = m.toLowerCase();
         String[] Command= m.trim().toLowerCase().split("[\\s]+");
         String first = Command[0];
@@ -47,6 +47,13 @@ public class Query {
                 break;
             default: System.out.println("Not a legal command!");
         }
+        Query.writeFile("DiskIOs: " + Long.toString(disk.getDiskIOs()), true);
+        Query.writeFile("DiskTimer: " + Double.toString(disk.getDiskTimer()), true);
+        Query.writeFile("\r\n", false);
+        //System.out.println("DiskIOs: " + Long.toString(disk.getDiskIOs()));
+        //System.out.println("DiskTimer: " + Double.toString(disk.getDiskTimer()));
+        //System.out.println();
+        resetDisk();
     }
 
     /************CREATE************/
@@ -118,7 +125,7 @@ public class Query {
                 Tuple tuple = relation.createTuple();
                 for(int j = 0; j < stmt.fieldValues.get(0).size(); ++j ){
                     String value = stmt.fieldValues.get(i).get(j);
-                    if(schema.getFieldType(stmt.fieldNames.get(j)) == FieldType.INT){
+                    if(schema.getFieldType(stmt.fieldNames.get(j)).equals(FieldType.INT)){
                         //handle NULL case
                         if(!value.equalsIgnoreCase("NULL")){
                             tuple.setField(stmt.fieldNames.get(j), Integer.parseInt(value));
@@ -159,9 +166,8 @@ public class Query {
 
     /************SELECT************/
     private static void selectQuery(String sql){
-        writeFile(sql, true);
-        Query.writeFile("********START********", true);
-        System.out.println("********START********");
+        Query.writeFile("------------RESULT START------------", true);
+        //System.out.println("------------RESULT START------------");
         Statement stmt = parser.selectStatement(sql);
         ParseTree parseTree = stmt.parseTree;
         if(parseTree.tables.size() == 1){
@@ -169,10 +175,8 @@ public class Query {
         }else{
             selectMultiRelation(parseTree);
         }
-        Query.writeFile("**********END**********", true);
-        Query.writeFile("\r\n", true);
-        System.out.println("**********END**********");
-        System.out.println();
+        Query.writeFile("-------------RESULT END-------------", true);
+        //System.out.println("-------------RESULT END-------------");
     }
 
     private static void selectSingleRelation(ParseTree parseTree){
@@ -249,8 +253,6 @@ public class Query {
         }
         tempRelations.add(relation.getRelationName());
 
-
-
         //if DISTINCT
         if(parseTree.distinct){
             relation = QueryHelper.distinct(schemaMG, relation, memory, parseTree.dist_attribute);
@@ -258,7 +260,7 @@ public class Query {
             tempRelations.add(relation.getRelationName());
         }
 
-        System.out.println(relation);
+        //System.out.println(relation);
 
         //selection
         if(parseTree.where){
@@ -266,8 +268,6 @@ public class Query {
             QueryHelper.clearMainMem(memory);
             tempRelations.add(relation.getRelationName());
         }
-
-
 
         //if ORDER BY
         if(parseTree.order){
@@ -352,36 +352,35 @@ public class Query {
     public static void main(String[] args) throws IOException {
         long startTime = System.nanoTime();
         Query.reset();
-        Query.setFileName("src/test2.txt");
-        Query.readFile("src/test.txt");
-//        Scanner in = new Scanner(System.in);
-//        System.out.println("Set Up Output File Name:");
-//        String outputFile = in.nextLine();
-//        Query.setFileName("src/" + outputFile);
-//        while (true) {
-//            System.out.println("Select TinySQL Mode (Press 1 or 2 to Select and Press Q to quit):");
-//            System.out.println("1.Input SQL Statement");
-//            System.out.println("2.Input SQL File Name");
-//            String s = in.nextLine();
-//            if(s.equalsIgnoreCase("1")) {
-//                System.out.println("Please Input SQL Query at a Line:");
-//                String sql = in.nextLine();
-//                if(sql.equalsIgnoreCase("q")) break;
-//                Query.parseQuery(sql);
-//            } else if (s.equalsIgnoreCase("2")) {
-//                System.out.println("Please Input a File Name(.txt):");
-//                String fileName = in.nextLine();
-//                if(fileName.equalsIgnoreCase("q")) break;
-//                Query.readFile("src/" + fileName);
-//            }else if(s.equalsIgnoreCase("Q")){
-//                break;
-//            }else{
-//                System.out.println("Invalid Input!");
-//            }
-//        }
+        //Query.setFileName("src/test2.txt");
         //Query.readFile("src/test.txt");
+        Scanner in = new Scanner(System.in);
+        System.out.println("Set Up Output File Name:");
+        String outputFile = in.nextLine();
+        Query.setFileName("src/" + outputFile);
+        while (true) {
+            System.out.println("Select TinySQL Mode (Press 1 or 2 to Select and Press Q to quit):");
+            System.out.println("1.Input SQL Statement");
+            System.out.println("2.Input SQL File Name");
+            String s = in.nextLine();
+            if(s.equalsIgnoreCase("1")) {
+                System.out.println("Please Input SQL Query at a Line:");
+                String sql = in.nextLine();
+                if(sql.equalsIgnoreCase("q")) break;
+                Query.parseQuery(sql);
+            } else if (s.equalsIgnoreCase("2")) {
+                System.out.println("Please Input a File Name:");
+                String fileName = in.nextLine();
+                if(fileName.equalsIgnoreCase("q")) break;
+                Query.readFile("src/" + fileName);
+            }else if(s.equalsIgnoreCase("Q")){
+                break;
+            }else{
+                System.out.println("Invalid Input!");
+            }
+        }
         long endTime = System.nanoTime();
-        System.out.println("Used: " + (endTime - startTime) / 1000000000 + "s");
+        System.out.println("Time Elapsed: " + (endTime - startTime) / 1000000000 + "s");
     }
 }
 

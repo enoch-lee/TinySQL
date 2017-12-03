@@ -1,10 +1,4 @@
 import storageManager.*;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public class QueryHelper {
@@ -93,14 +87,14 @@ public class QueryHelper {
         int i = 0;
         if(parseTree.attributes.get(0).equals("*")){
             Query.writeFile(relation.getSchema().getFieldNames().toString(), true);
-            System.out.print(relation.getSchema().getFieldNames());
+            //System.out.print(relation.getSchema().getFieldNames());
         }else{
             for(String attr : parseTree.attributes){
                 Query.writeFile(attr + " ", false);
-                System.out.print(attr + " ");
+                //System.out.print(attr + " ");
             }
         }
-        System.out.println();
+        //System.out.println();
         while(i < numOfBlocks){
             int t = Math.min(memory.getMemorySize(), numOfBlocks - i);
             relation.getBlocks(i, 0, t);
@@ -123,13 +117,13 @@ public class QueryHelper {
                 for(int i = 0; i < tuple.getNumOfFields(); ++i){
                     if(tuple.getField(i).type.equals(FieldType.INT) && tuple.getField(i).integer == Integer.MIN_VALUE){
                         Query.writeFile("NULL ", false);
-                        System.out.print("NULL ");
+                        //System.out.print("NULL ");
                     }else{
                         Query.writeFile(tuple.getField(i)+ " ", false);
-                        System.out.print(tuple.getField(i)+ " ");
+                        //System.out.print(tuple.getField(i)+ " ");
                     }
                 }
-                System.out.println();
+                //System.out.println();
                 Query.writeFile("\r\n", false);
             }else{
                 for(String attr : parseTree.attributes){
@@ -138,13 +132,13 @@ public class QueryHelper {
                     //handle NULL case
                     if(tuple.getField(attr).type.equals(FieldType.INT) && tuple.getField(attr).integer == Integer.MIN_VALUE){
                         Query.writeFile("NULL ", false);
-                        System.out.print("NULL ");
+                        //System.out.print("NULL ");
                     }else{
                         Query.writeFile(tuple.getField(attr) + " ", false);
-                        System.out.print(tuple.getField(attr) + " ");
+                        //System.out.print(tuple.getField(attr) + " ");
                     }
                 }
-                System.out.println();
+                //System.out.println();
                 Query.writeFile("\r\n", false);
             }
         }
@@ -391,9 +385,7 @@ public class QueryHelper {
 
             if(fieldName.equals("*")){
                 Tuple minTuple = Collections.min(minTuples, new TupleComparator());
-                //the 2nd difference - use Hashset
                 if(hashSetTuple.add(new MyTuple(minTuple))) res.add(minTuple);
-                //the 3rd difference - remove all minimum elements
                 for(ArrayList<Tuple> tuple : tuples){
                     if(!tuple.isEmpty()) {
                         if(new MyTuple(tuple.get(0)).equals(new MyTuple(minTuple))) tuple.remove(0);
