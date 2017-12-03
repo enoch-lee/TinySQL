@@ -25,12 +25,10 @@ public class Join {
 
         Schema schema = combineSchema(schema_manager, tableOne, tableTwo);
         String name = tableOne+"_cross_"+tableTwo;
-        if(schema_manager.relationExists(name)){
-            schema_manager.deleteRelation(name);
-        }
+        if(schema_manager.relationExists(name)) schema_manager.deleteRelation(name);
         new_relation = schema_manager.createRelation(name, schema);
+        QueryHelper.clearMainMem(memory);
         return QueryHelper.createRelationFromTuples(tuples, name, schema_manager, new_relation, memory);
-
     }
 
     private static ArrayList<Tuple> onePassJoin(SchemaManager schema_manager, MainMemory memory, String tableOne, String tableTwo){
@@ -51,10 +49,8 @@ public class Join {
         }
 
         Schema newSchema = combineSchema(schema_manager, tableOne, tableTwo);
-        String newName="TempTable_"+tableOne+"_crossJoin_"+tableTwo;
-        if(schema_manager.relationExists(newName)){
-            schema_manager.deleteRelation(newName);
-        }
+        String newName="temp_"+tableOne+"_cross_"+tableTwo;
+        if(schema_manager.relationExists(newName)) schema_manager.deleteRelation(newName);
         Relation newRelation = schema_manager.createRelation(newName, newSchema);
 
         //put small relation into the memory first
@@ -77,6 +73,7 @@ public class Join {
                 }
             }
         }
+        QueryHelper.clearMainMem(memory);
         return tuples;
     }
 
@@ -87,10 +84,8 @@ public class Join {
         int sizeOne = TableOne.getNumOfBlocks();
         int sizeTwo = TableTwo.getNumOfBlocks();
         Schema newSchema = combineSchema(schema_manager, tableOne, tableTwo);
-        String newName="TempTable_"+tableOne+"_crossJoin_"+tableTwo;
-        if(schema_manager.relationExists(newName)){
-            schema_manager.deleteRelation(newName);
-        }
+        String newName="temp_"+tableOne+"_cross_"+tableTwo;
+        if(schema_manager.relationExists(newName)) schema_manager.deleteRelation(newName);
         Relation newRelation = schema_manager.createRelation(newName, newSchema);
 
         for(int i=0; i<sizeOne; i++){
@@ -106,6 +101,7 @@ public class Join {
                 }
             }
         }
+        QueryHelper.clearMainMem(memory);
         return tuples;
     }
 
@@ -123,7 +119,7 @@ public class Join {
         ArrayList<FieldType>typesTwo = TableTwo.getSchema().getFieldTypes();
 
         for(String field:fieldsOne){
-            if(!field.contains("\\.")){
+            if(!field.contains(".")){
                 String newName = tableOne+"."+field;
                 combineFields.add(newName);
             }
@@ -133,7 +129,7 @@ public class Join {
         }
 
         for(String field:fieldsTwo){
-            if(!field.contains("\\.")){
+            if(!field.contains(".")){
                 String newName = tableTwo+"."+field;
                 combineFields.add(newName);
             }
@@ -198,8 +194,8 @@ public class Join {
         Schema schema = combineSchema(schemaManager, tableOne, tableTwo);
         Relation tempRelation = schemaManager.createRelation(name, schema);
 
+        QueryHelper.clearMainMem(memory);
         return QueryHelper.createRelationFromTuples(tuples, name, schemaManager, tempRelation, memory);
-
     }
 
     private static ArrayList<Tuple> onePassNaturalJoin(SchemaManager schemaManager, MainMemory memory, String tableOne, String tableTwo, String JoinOn){
@@ -220,10 +216,8 @@ public class Join {
         }
 
         Schema newSchema = combineSchema(schemaManager, tableOne, tableTwo);
-        String newName = "TempTable_"+tableOne+"_naturalJoin_"+tableTwo;
-        if(schemaManager.relationExists(newName)){
-            schemaManager.deleteRelation(newName);
-        }
+        String newName = "temp_"+tableOne+"_naturalJoin_"+tableTwo;
+        if(schemaManager.relationExists(newName)) schemaManager.deleteRelation(newName);
         Relation newRelation = schemaManager.createRelation(newName, newSchema);
 
         smallRelation.getBlocks(0,0,smallRelation.getNumOfBlocks());
@@ -258,6 +252,7 @@ public class Join {
                 }
             }
         }
+        QueryHelper.clearMainMem(memory);
         return tuples;
     }
 
@@ -270,7 +265,8 @@ public class Join {
 
         //phase 2: merging and iterating
         Schema schema = combineSchema(schemaManager, tableOne, tableTwo);
-        String name = tableOne + "_join_" + tableTwo;
+        String name = "temp_" + tableOne + "_join_" + tableTwo;
+        if(schemaManager.relationExists(name)) schemaManager.deleteRelation(name);
         Relation crossRelation = schemaManager.createRelation(name, schema);
 
         ArrayList<Tuple> res = new ArrayList<>();

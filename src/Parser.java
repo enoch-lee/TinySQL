@@ -121,43 +121,59 @@ public class Parser {
 
     public Statement insertStatement(String sql){
         Statement stmt = new Statement();
-        String regex = "insert[\\s]+into[\\s]+(.+)[\\s]+\\((.*)\\)[\\s]+values[\\s]+(.*)";
+        if(sql.contains("values")){
+            String regex = "insert[\\s]+into[\\s]+(.+)[\\s]+\\((.*)\\)[\\s]+values[\\s]+(.*)";
+            Pattern p = Pattern.compile(regex);
+            Matcher m = p.matcher(sql);
+            if(m.find()){
+                stmt.tableName = m.group(1);
+                stmt.fieldNames = new ArrayList<>(Arrays.asList(m.group(2).split("[\\s]*,[\\s]*")));
+                String[] values = m.group(3).replace("(", "").replace(")", "").split("[\\s]*,[\\s]*");
+                int len = stmt.fieldNames.size();
+                //handle bonus case: INSERT..VALUES (A, B, C),(D, E, F),(H, I, G)
+                ArrayList<String> tmp = new ArrayList<>();
+                for(int i = 0; i < values.length; ++i){
+                    values[i] = values[i].toUpperCase();
+                    //System.out.println(values[i]);
+                    if(i % len == 0) {
+                        if(i != 0) stmt.fieldValues.add(tmp);
+                        tmp.clear();
+                    }
+                    tmp.add(values[i]);
+                }
+                stmt.fieldValues.add(tmp);
+            }else{
+                System.err.println("Invalid SQL");
+            }
+        }else{
+            //handle case: INSERT INTO course (sid, homework, project, exam, grade) SELECT * FROM course
+            stmt = insertHelper(sql);
+        }
+        return stmt;
+    }
+
+    private Statement insertHelper(String sql){
+        Statement stmt = new Statement();
+        String regex = "insert[\\s]+into[\\s]+(.+)[\\s]+\\((.*)\\)[\\s]+(.*)";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(sql);
-        if(m.find()){
+        if(m.find()) {
             stmt.tableName = m.group(1);
             stmt.fieldNames = new ArrayList<>(Arrays.asList(m.group(2).split("[\\s]*,[\\s]*")));
-            String[] values = m.group(3).replace("(", "").replace(")", "").split("[\\s]*,[\\s]*");
-            int len = stmt.fieldNames.size();
-            //handle bonus case: INSERT..VALUES (A, B, C),(D, E, F),(H, I, G)
-            ArrayList<String> tmp = new ArrayList<>();
-            for(int i = 0; i < values.length; ++i){
-                //handle case: INSERT.. VALUE (1, 2, "A")
-                if(values[i].charAt(0) == '\"' && values[i].charAt(values[i].length() - 1) == '\"'){
-                    values[i] = values[i].replace('\"', ' ').trim();
-                }
-                //System.out.println(values[i]);
-                if(i % len == 0) {
-                    if(i != 0) stmt.fieldValues.add(tmp);
-                    tmp.clear();
-                }
-                tmp.add(values[i]);
-            }
-            stmt.fieldValues.add(tmp);
-        }else{
-            System.err.println("Invalid SQL");
+            stmt.subQuery= selectStatement(m.group(3));
         }
         return stmt;
     }
 
     public static void main(String[] args) throws IOException{
         String test1 = "create table table_name (c1 int, c2 int, c3 int)";
-        String test2 = "insert into table_name (c1, c2, c3) values (1, 2, \"a\")";
+        String test2 = "insert into table_name (c1, c2, c3) select * from course";
         String test3 = "select * from table_name where a > 3 and c = 2";
         Parser p = new Parser();
-        p.createStatement(test1);
-        p.insertStatement(test2);
-        p.selectStatement(test3);
+        //p.createStatement(test1);
+        Statement stmt = p.insertStatement(test2);
+        //System.out.println(stmt.subQuery.parseTree.tables.get(0));
+        //p.selectStatement(test3);
     }
 }
 

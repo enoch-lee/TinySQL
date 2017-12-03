@@ -12,19 +12,20 @@ public class ExpressionTree {
     public ArrayList<String> AndOrNots;
     public ArrayList<String[]> subconditions;
     public ArrayList<TreeNode> Roots;
+    public ArrayList<Pair<ArrayList<String>, String>> natureJoin;
 
     private Stack<String> OperatorStack;
     private Stack<TreeNode> TreeNodeStack;
 
 
     ExpressionTree(String[] condition){
-        this.OperatorStack=new Stack<String>();
-        this.TreeNodeStack=new Stack<TreeNode>();
-
-        this.Roots=new ArrayList<TreeNode>();
-        this.AndORs=new ArrayList<Integer>();
-        this.AndOrNots=new ArrayList<String>();
-        this.subconditions=new ArrayList<String[]>();
+        this.OperatorStack = new Stack<String>();
+        this.TreeNodeStack = new Stack<TreeNode>();
+        this.natureJoin = new ArrayList<Pair<ArrayList<String>, String>>();
+        this.Roots = new ArrayList<TreeNode>();
+        this.AndORs = new ArrayList<Integer>();
+        this.AndOrNots = new ArrayList<String>();
+        this.subconditions = new ArrayList<String[]>();
 
         SplitSubCondition(condition);
         if(!AndOR){
@@ -33,6 +34,28 @@ public class ExpressionTree {
             for(int i=0; i<subconditions.size();i++){
                 String[] condi=subconditions.get(i);
                 Roots.add(Build(condi));
+            }
+        }
+
+        if(subconditions.size()!=0) {
+            for (String[] sub : subconditions) {
+                checkNaturalJoin(sub);
+            }
+        }else{
+            checkNaturalJoin(condition);
+        }
+    }
+
+    private void checkNaturalJoin(String[] condition){
+        if(condition.length==3){
+            if(condition[1].equals("=") && condition[0].contains(".") && condition[2].contains(".")){
+                if(condition[0].split("\\.")[1].equals(condition[2].split("\\.")[1])) {
+                    ArrayList<String> temp = new ArrayList<String>();
+                    temp.add(condition[0].split("\\.")[0]);
+                    temp.add(condition[2].split("\\.")[0]);
+                    Pair nature = new Pair<ArrayList<String>, String>(temp, condition[0].split("\\.")[1]);
+                    this.natureJoin.add(nature);
+                }
             }
         }
     }
@@ -165,6 +188,7 @@ public class ExpressionTree {
         for(int i=0; i<Roots.size(); i++){
             TotalResult.add(ReturnResults(tuple, Roots.get(i)));
         }
+
         int j=0;
         for(int i=0; i<AndOrNots.size(); i++){
             String condition=AndOrNots.get(i);
@@ -194,12 +218,13 @@ public class ExpressionTree {
 
     private void PrintTraversal(TreeNode root){
         if(root.leftchild!=null) PrintTraversal(root.leftchild);
-        //root.PrintNode();
         if(root.rightchild!=null) PrintTraversal(root.rightchild);
     }
 
     private String ReturnResults(Tuple tuple, TreeNode root){
+
         String word=root.root;
+
         if(word.equals("+")){
             String left=ReturnResults(tuple, root.leftchild);
             String right=ReturnResults(tuple, root.rightchild);
@@ -244,16 +269,18 @@ public class ExpressionTree {
                 int Intright=Integer.parseInt(right);
                 return String.valueOf(Intleft==Intright);
             }else{
-                return String.valueOf(left.equals(right));
+                return String.valueOf(left.equalsIgnoreCase(right));
             }
         }else if(isInteger(word)){
             return word;
         }else{
-            if(!tuple.getField(word).toString().equals("")){
-                return tuple.getField(word).toString();
-            }else{
-                return word;
+            ArrayList<String> fieldNames = tuple.getSchema().getFieldNames();
+            for(String s : fieldNames){
+                if(s.equalsIgnoreCase(word)){
+                    return tuple.getField(word).toString();
+                }
             }
+            return word;
         }
 
     }

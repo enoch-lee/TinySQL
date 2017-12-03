@@ -13,6 +13,7 @@ public class QueryHelper {
         }else{
             tuples = twoPassSort(relation, memory, fieldName);
         }
+        clearMainMem(memory);
         return createRelationFromTuples(tuples, name, schemaManager, relation, memory);
     }
 
@@ -26,6 +27,7 @@ public class QueryHelper {
         }else{
             tuples = twoPassRemoveDuplicate(relation, memory, fieldName);
         }
+        clearMainMem(memory);
         return createRelationFromTuples(tuples, name, schemaManager, relation, memory);
     }
 
@@ -51,59 +53,12 @@ public class QueryHelper {
         }
         String name = relation.getRelationName() + "_select_";
         if(schemaMG.relationExists(name)) schemaMG.deleteRelation(name);
+        clearMainMem(memory);
         return createRelationFromTuples(tuples, name, schemaMG, relation, memory);
     }
 
-    public static void project(Relation relation, MainMemory memory, ParseTree parseTree){
-        int numOfBlocks = relation.getNumOfBlocks();
-        int i = 0;
-        if(parseTree.attributes.get(0).equals("*")){
-            System.out.print(relation.getSchema().getFieldNames());
-        }else{
-            for(String attr : parseTree.attributes){
-                System.out.print(attr + " ");
-            }
-        }
-        System.out.println();
-        //System.out.println(relation);
-        while(i < numOfBlocks){
-            int t = Math.min(memory.getMemorySize(), numOfBlocks - i);
-            relation.getBlocks(i, 0, t);
-            if(memory.getBlock(0).isEmpty()){
-                System.out.println("No Selected Tuples");
-                return;
-            }
-            projectHelper(relation, memory, parseTree, t);
-            if(t < memory.getMemorySize()) break;
-            else i += memory.getMemorySize();
-        }
-    }
-
-    private static void projectHelper(Relation relation, MainMemory memory, ParseTree parseTree, int memBlocks){
-        ArrayList<Tuple> tuples = memory.getTuples(0, memBlocks);
-        for(Tuple tuple : tuples){
-            if(parseTree.attributes.get(0).equals("*")){
-                System.out.println(tuple);
-            }else{
-                for(String attr : parseTree.attributes){
-                    if(attr.contains(".") && parseTree.tables.size() == 1) attr = attr.split("\\.")[1];
-                    if(!tuple.isNull()){
-                        //handle NULL case
-                        if(tuple.getField(attr).type.equals(FieldType.INT) && tuple.getField(attr).integer == Integer.MIN_VALUE){
-                            System.out.print("NULL");
-                        }else{
-                            System.out.print(tuple.getField(attr) + " ");
-                        }
-                    }
-                }
-                System.out.println();
-            }
-        }
-        QueryHelper.clearMainMem(memory);
-    }
-
     //get blocks once to reduce disk timer
-    private static ArrayList<Tuple> selectQueryHelper(ParseTree parseTree, Relation relation, MainMemory memory, int relationIndex, int loop ){
+    public static ArrayList<Tuple> selectQueryHelper(ParseTree parseTree, Relation relation, MainMemory memory, int relationIndex, int loop ){
         Block block;
         ArrayList<Tuple> res = new ArrayList<>();
         relation.getBlocks(relationIndex, 0, loop);
@@ -119,25 +74,81 @@ public class QueryHelper {
                 }
             }
         }
+        clearMainMem(memory);
         return res;
     }
+
+    //projection
+    public static void project(Relation relation, MainMemory memory, ParseTree parseTree){
+        int numOfBlocks = relation.getNumOfBlocks();
+        int i = 0;
+        if(parseTree.attributes.get(0).equals("*")){
+            System.out.print(relation.getSchema().getFieldNames());
+        }else{
+            for(String attr : parseTree.attributes){
+                System.out.print(attr + " ");
+            }
+        }
+        System.out.println();
+        while(i < numOfBlocks){
+            int t = Math.min(memory.getMemorySize(), numOfBlocks - i);
+            relation.getBlocks(i, 0, t);
+            if(memory.getBlock(0).isEmpty()){
+                System.out.println("No Selected Tuples");
+                return;
+            }
+            projectHelper(memory, parseTree, t);
+            if(t < memory.getMemorySize()) break;
+            else i += memory.getMemorySize();
+        }
+        clearMainMem(memory);
+    }
+
+    private static void projectHelper(MainMemory memory, ParseTree parseTree, int memBlocks){
+        ArrayList<Tuple> tuples = memory.getTuples(0, memBlocks);
+        for(Tuple tuple : tuples){
+            if(tuple.isNull()) return;
+            if(parseTree.attributes.get(0).equals("*")){
+                for(int i = 0; i < tuple.getNumOfFields(); ++i){
+                    if(tuple.getField(i).type.equals(FieldType.INT) && tuple.getField(i).integer == Integer.MIN_VALUE){
+                        System.out.print("NULL ");
+                    }else{
+                        System.out.print(tuple.getField(i)+ " ");
+                    }
+                }
+                System.out.println();
+            }else{
+                for(String attr : parseTree.attributes){
+                    //handle course.grade
+                    if(attr.contains(".") && parseTree.tables.size() == 1) attr = attr.split("\\.")[1];
+                    //handle NULL case
+                    if(tuple.getField(attr).type.equals(FieldType.INT) && tuple.getField(attr).integer == Integer.MIN_VALUE){
+                        System.out.print("NULL ");
+                    }else{
+                        System.out.print(tuple.getField(attr) + " ");
+                    }
+                }
+                System.out.println();
+            }
+        }
+        clearMainMem(memory);
+    }
+
 
     //create temporary relation from tuples
     public static Relation createRelationFromTuples(ArrayList<Tuple> tuples, String name, SchemaManager schemaManager, Relation relation, MainMemory memory){
         Schema schema = relation.getSchema();
         if(schemaManager.relationExists(name)) schemaManager.deleteRelation(name);
         Relation tempRelation = schemaManager.createRelation(name, schema);
-        int tupleNumber = tuples.size(),
-                tuplesPerBlock = schema.getTuplesPerBlock();
+        int tupleNumber = tuples.size(), tuplesPerBlock = schema.getTuplesPerBlock();
         int tupleBlocks;
         if(tupleNumber < tuplesPerBlock){
             tupleBlocks = 1;
-        }else if(tupleNumber > tuplesPerBlock && tupleNumber % tuplesPerBlock == 0){
+        }else if(tupleNumber >= tuplesPerBlock && tupleNumber % tuplesPerBlock == 0){
             tupleBlocks = tupleNumber / tuplesPerBlock;
         }else{
             tupleBlocks = tupleNumber / tuplesPerBlock + 1;
         }
-
         int index = 0;
         while(index < tupleBlocks){
             int t = Math.min(memory.getMemorySize(), tupleBlocks - index);
@@ -161,6 +172,7 @@ public class QueryHelper {
                 index += memory.getMemorySize();
             }
         }
+        clearMainMem(memory);
         return tempRelation;
     }
 
@@ -376,6 +388,7 @@ public class QueryHelper {
             int t = Math.min(memory.getMemorySize(), numOfBlocks - sortedBlocks);
             relation.getBlocks(sortedBlocks, 0, t);
             tuples = onePassSort(memory, t);
+            if(tuples.isEmpty()) break;  //handle case that the relation is empty but it still have empty blocks
             memory.setTuples(0, tuples);
             relation.setBlocks(sortedBlocks, 0, t);
             //t <= memory.getMemorySize() ---> error!!!!(When numOfBlocks > 10)
@@ -384,8 +397,14 @@ public class QueryHelper {
             }else{
                 sortedBlocks += memory.getMemorySize();
             }
-            clearMainMem(memory);
         }
+        //remove empty blocks of the relation after sorting which could increase diskIO and diskTimer
+        for(int i = 0; i < relation.getNumOfBlocks(); ++i){
+            relation.getBlock(i, 0);
+            if(memory.getBlock(0).isEmpty()) relation.deleteBlocks(i);
+            memory.getBlock(0).clear();
+        }
+        clearMainMem(memory);
     }
 
     public static void clearMainMem(MainMemory memory){
