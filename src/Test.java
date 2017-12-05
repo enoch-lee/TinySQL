@@ -3,7 +3,7 @@ import java.util.Scanner;
 
 public class Test {
     public static void main(String[] args) throws IOException {
-        long startTime = System.nanoTime();
+        long startTime = System.currentTimeMillis();
         Query.reset();
         Scanner in = new Scanner(System.in);
         System.out.println("Set Up Output File Name:");
@@ -30,7 +30,7 @@ public class Test {
                 System.out.println("Invalid Input!");
             }
         }
-        long endTime = System.nanoTime();
-        System.out.println("Time Elapsed: " + (endTime - startTime) / 1000000000 + "s");
+        long endTime = System.currentTimeMillis();
+        System.out.println("Time Elapsed: " + (endTime - startTime) / 1000 + "s");
     }
 }

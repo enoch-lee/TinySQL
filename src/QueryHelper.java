@@ -1,7 +1,7 @@
 import storageManager.*;
 import java.util.*;
 
-public class QueryHelper {
+class QueryHelper {
     private static String fileName;
 
     //sort relations
@@ -90,9 +90,10 @@ public class QueryHelper {
             //System.out.print(relation.getSchema().getFieldNames());
         }else{
             for(String attr : parseTree.attributes){
-                Query.writeFile(attr + " ", false);
+                Query.writeFile(attr + "\t\t", false);
                 //System.out.print(attr + " ");
             }
+            Query.writeFile("\r\n", false);
         }
         //System.out.println();
         while(i < numOfBlocks){
@@ -116,10 +117,10 @@ public class QueryHelper {
             if(parseTree.attributes.get(0).equals("*")){
                 for(int i = 0; i < tuple.getNumOfFields(); ++i){
                     if(tuple.getField(i).type.equals(FieldType.INT) && tuple.getField(i).integer == Integer.MIN_VALUE){
-                        Query.writeFile("NULL ", false);
+                        Query.writeFile("NULL\t", false);
                         //System.out.print("NULL ");
                     }else{
-                        Query.writeFile(tuple.getField(i)+ " ", false);
+                        Query.writeFile(tuple.getField(i)+ "\t\t", false);
                         //System.out.print(tuple.getField(i)+ " ");
                     }
                 }
@@ -131,10 +132,10 @@ public class QueryHelper {
                     if(attr.contains(".") && parseTree.tables.size() == 1) attr = attr.split("\\.")[1];
                     //handle NULL case
                     if(tuple.getField(attr).type.equals(FieldType.INT) && tuple.getField(attr).integer == Integer.MIN_VALUE){
-                        Query.writeFile("NULL ", false);
+                        Query.writeFile("NULL\t", false);
                         //System.out.print("NULL ");
                     }else{
-                        Query.writeFile(tuple.getField(attr) + " ", false);
+                        Query.writeFile(tuple.getField(attr) + "\t\t", false);
                         //System.out.print(tuple.getField(attr) + " ");
                     }
                 }

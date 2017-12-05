@@ -326,11 +326,11 @@ public class Query {
 
     public static void writeFile(String output, Boolean newLine){
         try {
-            Path file = Paths.get(FILENAME);
-            if(newLine){
-                output += "\r\n";
-            }
-            Files.write(file, output.getBytes(),  StandardOpenOption.APPEND);
+            File file = new File(FILENAME);
+            file.createNewFile();
+            Path fileName = Paths.get(FILENAME);
+            if(newLine) output += "\r\n";
+            Files.write(fileName, output.getBytes(),  StandardOpenOption.APPEND);
         } catch(IOException ex) {
             ex.printStackTrace();
         }
@@ -352,33 +352,33 @@ public class Query {
     public static void main(String[] args) throws IOException {
         long startTime = System.nanoTime();
         Query.reset();
-        //Query.setFileName("src/test2.txt");
-        //Query.readFile("src/test.txt");
-        Scanner in = new Scanner(System.in);
-        System.out.println("Set Up Output File Name:");
-        String outputFile = in.nextLine();
-        Query.setFileName("src/" + outputFile);
-        while (true) {
-            System.out.println("Select TinySQL Mode (Press 1 or 2 to Select and Press Q to quit):");
-            System.out.println("1.Input SQL Statement");
-            System.out.println("2.Input SQL File Name");
-            String s = in.nextLine();
-            if(s.equalsIgnoreCase("1")) {
-                System.out.println("Please Input SQL Query at a Line:");
-                String sql = in.nextLine();
-                if(sql.equalsIgnoreCase("q")) break;
-                Query.parseQuery(sql);
-            } else if (s.equalsIgnoreCase("2")) {
-                System.out.println("Please Input a File Name:");
-                String fileName = in.nextLine();
-                if(fileName.equalsIgnoreCase("q")) break;
-                Query.readFile("src/" + fileName);
-            }else if(s.equalsIgnoreCase("Q")){
-                break;
-            }else{
-                System.out.println("Invalid Input!");
-            }
-        }
+        Query.setFileName("src/my_output.txt");
+        Query.readFile("src/test.txt");
+//        Scanner in = new Scanner(System.in);
+//        System.out.println("Set Up Output File Name:");
+//        String outputFile = in.nextLine();
+//        Query.setFileName("src/" + outputFile);
+//        while (true) {
+//            System.out.println("Select TinySQL Mode (Press 1 or 2 to Select and Press Q to quit):");
+//            System.out.println("1.Input SQL Statement");
+//            System.out.println("2.Input SQL File Name");
+//            String s = in.nextLine();
+//            if(s.equalsIgnoreCase("1")) {
+//                System.out.println("Please Input SQL Query at a Line:");
+//                String sql = in.nextLine();
+//                if(sql.equalsIgnoreCase("q")) break;
+//                Query.parseQuery(sql);
+//            } else if (s.equalsIgnoreCase("2")) {
+//                System.out.println("Please Input a File Name:");
+//                String fileName = in.nextLine();
+//                if(fileName.equalsIgnoreCase("q")) break;
+//                Query.readFile("src/" + fileName);
+//            }else if(s.equalsIgnoreCase("Q")){
+//                break;
+//            }else{
+//                System.out.println("Invalid Input!");
+//            }
+//        }
         long endTime = System.nanoTime();
         System.out.println("Time Elapsed: " + (endTime - startTime) / 1000000000 + "s");
     }
